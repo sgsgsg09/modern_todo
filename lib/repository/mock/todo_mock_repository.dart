@@ -1,10 +1,15 @@
 import 'dart:async';
+import 'package:modern_todo/data/mock_data.dart';
 import 'package:modern_todo/models/todo_item.dart';
-import 'todo_abstract_repository.dart';
+import '../todo_abstract_repository.dart';
 
 class TodoMockRepository implements TodoAbstractRepository {
   // 메모리 내 저장소 (초기에는 빈 리스트, 필요하면 초기 목 데이터를 넣을 수 있음)
   final List<TodoItem> _todos = [];
+
+  TodoMockRepository() {
+    _todos.addAll(getMockTodoItems());
+  }
 
   @override
   Future<List<TodoItem>> fetchTodos({DateTime? date}) async {

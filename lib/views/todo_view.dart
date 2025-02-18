@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:modern_todo/models/todo_item.dart';
 import 'package:modern_todo/viewmodels/todo_viewmodel.dart';
+import 'package:modern_todo/views/calendar_view.dart';
 import 'package:modern_todo/views/todo_widgets/header_section.dart';
-import 'package:modern_todo/views/todo_widgets/date_tabs.dart';
 import 'package:modern_todo/widgets/todo_card.dart';
 import 'package:modern_todo/widgets/add_todo_dotted_card.dart';
 import 'package:modern_todo/widgets/add_todo_dialog.dart';
@@ -22,8 +22,14 @@ class _TodoViewState extends ConsumerState<TodoView>
   @override
   void initState() {
     super.initState();
-    // Today, Tomorrow, All 탭 3개 구성
+    // Today, Tomorrow, Calendar 탭 3개 구성
     _tabController = TabController(length: 3, vsync: this);
+    _tabController.addListener(() {
+      // 탭 변경 시 UI 갱신 (FAB 등 조건부 UI)
+      if (!_tabController.indexIsChanging) {
+        setState(() {});
+      }
+    });
   }
 
   @override
@@ -32,42 +38,116 @@ class _TodoViewState extends ConsumerState<TodoView>
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final asyncTodos = ref.watch(todoViewModelProvider);
-
-    return Scaffold(
-      body: SafeArea(
-        child: Container(
-          margin: const EdgeInsets.all(10),
-          child: Column(
-            children: [
-              const HeaderSection(),
-              DateTabs(tabController: _tabController),
-              Expanded(
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    _buildTodoList(asyncTodos, filter: 'today'),
-                    _buildTodoList(asyncTodos, filter: 'tomorrow'),
-                    _buildTodoList(asyncTodos, filter: 'all'),
-                  ],
-                ),
-              ),
-            ],
+  /// 탭에 따른 Todo 목록과 HeaderSection을 함께 보여주는 위젯
+  Widget _buildTodoTab(String filter) {
+    // viewmodel의 상태(AsyncValue<List<TodoItem>>)를 구독합니다.
+    final todosAsyncValue = ref.watch(todoViewModelProvider);
+    return Column(
+      children: [
+        const HeaderSection(),
+        Expanded(
+          child: _TodoList(
+            filter: filter,
+            todosAsyncValue: todosAsyncValue,
+            onAddTodo: _openAddTodoDialog,
           ),
         ),
+      ],
+    );
+  }
+
+  /// 상단 탭바를 구성하는 위젯
+  Widget _buildTabBar() {
+    return Container(
+      color: const Color(0xFF121212),
+      child: TabBar(
+        controller: _tabController,
+        indicatorColor: Colors.pinkAccent,
+        labelColor: Colors.white,
+        unselectedLabelColor: Colors.grey,
+        tabs: const [
+          Tab(text: 'Today'),
+          Tab(text: 'Tomorrow'),
+          Tab(icon: Icon(Icons.calendar_month)),
+        ],
       ),
     );
   }
 
-  /// 필터에 따라 TodoItem 목록을 반환 (startDate를 기준)
-  Widget _buildTodoList(AsyncValue<List<TodoItem>> asyncTodos,
-      {required String filter}) {
-    return asyncTodos.when(
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      // SafeArea를 통해 기기별 안전 영역 확보
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildTabBar(),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  // Today 탭
+                  _buildTodoTab('today'),
+                  // Tomorrow 탭
+                  _buildTodoTab('tomorrow'),
+                  // Calendar 탭
+                  const CalendarView(key: ValueKey('calendar')),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+      // Calendar 탭일 때만 FloatingActionButton 노출
+      floatingActionButton: _tabController.index == 2
+          ? FloatingActionButton(
+              onPressed: () {
+                // Calendar 탭에 맞는 동작 구현 (예: 일정 추가)
+              },
+              backgroundColor: Colors.pinkAccent,
+              child: const Icon(Icons.add),
+            )
+          : null,
+    );
+  }
+
+  /// 새 Todo 항목을 추가하는 다이얼로그 오픈
+  Future<void> _openAddTodoDialog() async {
+    final newTodo = await showDialog<TodoItem>(
+      context: context,
+      builder: (context) => const AddTodoDialog(),
+    );
+    if (newTodo != null) {
+      // 필요에 따라 시작/종료 날짜를 조정
+      final todoWithDates = newTodo.copyWith(
+        startDate: newTodo.startDate,
+        endDate: newTodo.startDate,
+      );
+      await ref.read(todoViewModelProvider.notifier).addTodo(todoWithDates);
+    }
+  }
+}
+
+/// Todo 목록을 필터링하여 보여주는 위젯
+class _TodoList extends StatelessWidget {
+  final String filter;
+  final AsyncValue<List<TodoItem>> todosAsyncValue;
+  final VoidCallback onAddTodo;
+
+  const _TodoList({
+    Key? key,
+    required this.filter,
+    required this.todosAsyncValue,
+    required this.onAddTodo,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return todosAsyncValue.when(
       data: (todos) {
         final now = DateTime.now();
         List<TodoItem> filtered = todos;
+
         if (filter == 'today') {
           filtered = todos
               .where((t) =>
@@ -84,58 +164,37 @@ class _TodoViewState extends ConsumerState<TodoView>
                   t.startDate.day == tomorrow.day)
               .toList();
         }
-        // 'all'인 경우 전체 목록 사용
 
-        // 목록이 비어 있으면 안내 문구와 "Add New Todo" 점선 카드 표시
+        // 항목이 없으면 추가 버튼 카드만 보여줌
         if (filtered.isEmpty) {
           return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                const SizedBox(height: 20),
-                AddTodoDottedCard(onTap: _openAddTodoDialog),
-              ],
-            ),
+            child: AddTodoDottedCard(onTap: onAddTodo),
           );
         }
 
-        return Container(
-          child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            itemCount: filtered.length + 1, // 마지막 항목은 점선 카드
-            itemBuilder: (context, index) {
-              if (index < filtered.length) {
-                final todo = filtered[index];
-                return TodoCard(todo: todo);
-              } else {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: AddTodoDottedCard(onTap: _openAddTodoDialog),
-                );
-              }
-            },
-          ),
+        return ListView.builder(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          itemCount: filtered.length + 1,
+          itemBuilder: (context, index) {
+            if (index < filtered.length) {
+              final todo = filtered[index];
+              return TodoCard(todo: todo);
+            } else {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: AddTodoDottedCard(onTap: onAddTodo),
+              );
+            }
+          },
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, stack) => Center(
-          child:
-              Text("오류 발생: $error", style: const TextStyle(color: Colors.red))),
+        child: Text(
+          "오류 발생: $error",
+          style: const TextStyle(color: Colors.red),
+        ),
+      ),
     );
-  }
-
-  Future<void> _openAddTodoDialog() async {
-    final newTodo = await showDialog<TodoItem>(
-      context: context,
-      builder: (context) => const AddTodoDialog(),
-    );
-    if (newTodo != null) {
-      // 다이얼로그에서 입력한 날짜를 startDate와 endDate에 할당
-      final todoWithDates = newTodo.copyWith(
-        startDate: newTodo.startDate,
-        endDate: newTodo.startDate,
-      );
-      await ref.read(todoViewModelProvider.notifier).addTodo(todoWithDates);
-    }
   }
 }

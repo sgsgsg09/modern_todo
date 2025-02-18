@@ -1,6 +1,6 @@
 import 'package:modern_todo/models/todo_item.dart';
 import 'package:modern_todo/repository/todo_abstract_repository.dart';
-import 'package:modern_todo/repository/todo_mock_repository_provider.dart';
+import 'package:modern_todo/repository/mock/todo_mock_repository_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'calendar_viewmodel.g.dart';

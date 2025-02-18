@@ -1,49 +1,48 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:modern_todo/models/todo_item.dart';
+import 'package:modern_todo/repository/todo_abstract_repository.dart';
+import 'package:modern_todo/repository/repository_provider.dart';
 
-/// TodoViewModel이 관리하는 상태: AsyncValue<List<TodoItem>>
+/// todoViewModelProvider는 repositoryProvider로부터 주입받은 구현체를 사용합니다.
 final todoViewModelProvider =
     StateNotifierProvider<TodoViewModel, AsyncValue<List<TodoItem>>>((ref) {
-  return TodoViewModel();
+  // repositoryProvider에서 구현체를 가져옵니다.
+  final repository = ref.watch(todoRepositoryProvider);
+  return TodoViewModel(repository);
 });
 
 class TodoViewModel extends StateNotifier<AsyncValue<List<TodoItem>>> {
-  // 메모리 상에서 관리할 Todo 목록
-  final List<TodoItem> _todos = [];
+  final TodoAbstractRepository repository;
 
-  TodoViewModel() : super(const AsyncValue.loading()) {
-    _initLoad();
+  TodoViewModel(this.repository) : super(const AsyncValue.loading()) {
+    loadTodos();
   }
 
-  /// 초기 데이터 로딩 (여기서는 지연 후 빈 목록으로 설정)
-  Future<void> _initLoad() async {
-    await Future.delayed(const Duration(milliseconds: 500));
-    state = AsyncValue.data(_todos);
+  /// 외부 데이터 소스로부터 Todo 목록을 로드합니다.
+  Future<void> loadTodos() async {
+    try {
+      final todos = await repository.fetchTodos();
+      state = AsyncValue.data(todos);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
   }
 
   /// 새 Todo 추가
   Future<void> addTodo(TodoItem todo) async {
-    // 임의로 ID를 부여 (실제 DB 사용 시 DB에서 생성)
-    final newId = _todos.isEmpty
-        ? 1
-        : (_todos.map((e) => e.id ?? 0).reduce((a, b) => a > b ? a : b) + 1);
-    final newTodo = todo.copyWith(id: newId);
-    _todos.add(newTodo);
-    state = AsyncValue.data([..._todos]); // 변경된 목록 반영
+    await repository.addTodo(todo);
+    await loadTodos();
   }
 
-  /// Todo 수정 (id가 같은 항목 찾아서 교체)
-  Future<void> updateTodo(TodoItem updated) async {
-    final index = _todos.indexWhere((t) => t.id == updated.id);
-    if (index != -1) {
-      _todos[index] = updated;
-      state = AsyncValue.data([..._todos]);
-    }
+  /// Todo 수정
+  Future<void> updateTodo(TodoItem todo) async {
+    await repository.updateTodo(todo);
+    await loadTodos();
   }
 
   /// Todo 삭제
-  Future<void> deleteTodo(TodoItem target) async {
-    _todos.removeWhere((t) => t.id == target.id);
-    state = AsyncValue.data([..._todos]);
+  Future<void> deleteTodo(TodoItem todo) async {
+    await repository.deleteTodo(todo);
+    await loadTodos();
   }
 }
