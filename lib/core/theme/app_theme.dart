@@ -15,6 +15,14 @@ class AppTheme {
     fontWeight: FontWeight.bold,
     color: primaryColor,
   );
+  static final TextStyle today_headerTitleStyle = TextStyle(
+    fontSize: 24,
+    color: primaryColor,
+  );
+  static final TextStyle today_headerSubtitleStyle = TextStyle(
+    fontSize: 16,
+    color: const Color.fromARGB(255, 255, 255, 255),
+  );
 
   static final TextStyle headerSubtitleStyle = TextStyle(
     fontSize: 16,
@@ -29,7 +37,7 @@ class AppTheme {
 
   static final TextStyle todoDescriptionStyle = TextStyle(
     fontSize: 14,
-    color: Colors.black87,
+    color: const Color.fromARGB(221, 52, 52, 52),
   );
 
   static final TextStyle addTodoTextStyle = TextStyle(

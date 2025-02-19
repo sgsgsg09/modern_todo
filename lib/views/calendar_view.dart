@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:modern_todo/widgets/todo_card.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:modern_todo/models/todo_item.dart';
 import 'package:modern_todo/viewmodels/calendar_viewmodel.dart';
@@ -195,62 +196,18 @@ class _CalendarViewState extends ConsumerState<CalendarView> {
                                     itemCount: events.length,
                                     itemBuilder: (context, index) {
                                       final todo = events[index];
-                                      return Container(
-                                        margin:
-                                            const EdgeInsets.only(bottom: 12),
-                                        padding: const EdgeInsets.all(12),
-                                        decoration: BoxDecoration(
-                                          color: Color(todo.color)
-                                              .withOpacity(0.2),
-                                          borderRadius:
-                                              BorderRadius.circular(12),
+                                      return AnimatedSwitcher(
+                                        duration:
+                                            const Duration(milliseconds: 300),
+                                        transitionBuilder: (child, animation) =>
+                                            FadeTransition(
+                                          opacity: animation,
+                                          child: child,
                                         ),
-                                        child: Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Container(
-                                              width: 8,
-                                              height: 8,
-                                              margin: const EdgeInsets.only(
-                                                  right: 8, top: 6),
-                                              decoration: BoxDecoration(
-                                                color: Color(todo.color),
-                                                shape: BoxShape.circle,
-                                              ),
-                                            ),
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    todo.title,
-                                                    style: const TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 16,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(height: 4),
-                                                  Text(todo.description),
-                                                ],
-                                              ),
-                                            ),
-                                            IconButton(
-                                              icon: const Icon(
-                                                Icons.delete,
-                                                color: Colors.red,
-                                              ),
-                                              onPressed: () async {
-                                                await ref
-                                                    .read(
-                                                        calendarViewModelProvider
-                                                            .notifier)
-                                                    .deleteTodo(todo);
-                                              },
-                                            ),
-                                          ],
+                                        // 각 TodoCard에 고유의 키를 부여하여 AnimatedSwitcher가 변화를 감지할 수 있도록 합니다.
+                                        child: TodoCard(
+                                          key: ValueKey(todo.id),
+                                          todo: todo,
                                         ),
                                       );
                                     },
@@ -268,34 +225,6 @@ class _CalendarViewState extends ConsumerState<CalendarView> {
             ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final newTodo = await showDialog<TodoItem>(
-            context: context,
-            builder: (context) => const AddTodoDialogCalendar(),
-          );
-          if (newTodo != null) {
-            // 선택된 날짜에 맞춰 startDate/endDate를 설정 (예: 하루짜리 일정)
-            final todoWithDates = newTodo.copyWith(
-              startDate: DateTime(
-                _selectedDay.year,
-                _selectedDay.month,
-                _selectedDay.day,
-              ),
-              endDate: DateTime(
-                _selectedDay.year,
-                _selectedDay.month,
-                _selectedDay.day,
-              ),
-            );
-            await ref
-                .read(calendarViewModelProvider.notifier)
-                .addTodo(todoWithDates);
-          }
-        },
-        backgroundColor: Colors.pinkAccent,
-        child: const Icon(Icons.add),
       ),
     );
   }

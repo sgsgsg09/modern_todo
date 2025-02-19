@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:modern_todo/models/todo_item.dart';
-import 'package:modern_todo/viewmodels/todo_viewmodel.dart';
+import 'package:modern_todo/viewmodels/calendar_viewmodel.dart';
 import 'package:modern_todo/views/calendar_view.dart';
 import 'package:modern_todo/views/todo_widgets/header_section.dart';
 import 'package:modern_todo/widgets/todo_card.dart';
@@ -41,7 +41,23 @@ class _TodoViewState extends ConsumerState<TodoView>
   /// 탭에 따른 Todo 목록과 HeaderSection을 함께 보여주는 위젯
   Widget _buildTodoTab(String filter) {
     // viewmodel의 상태(AsyncValue<List<TodoItem>>)를 구독합니다.
-    final todosAsyncValue = ref.watch(todoViewModelProvider);
+    final todosAsyncValue = ref.watch(calendarViewModelProvider);
+    return Column(
+      children: [
+        Expanded(
+          child: _TodoList(
+            filter: filter,
+            todosAsyncValue: todosAsyncValue,
+            onAddTodo: _openAddTodoDialog,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _todayBuildTodoTab(String filter) {
+    // viewmodel의 상태(AsyncValue<List<TodoItem>>)를 구독합니다.
+    final todosAsyncValue = ref.watch(calendarViewModelProvider);
     return Column(
       children: [
         const HeaderSection(),
@@ -59,11 +75,10 @@ class _TodoViewState extends ConsumerState<TodoView>
   /// 상단 탭바를 구성하는 위젯
   Widget _buildTabBar() {
     return Container(
-      color: const Color(0xFF121212),
       child: TabBar(
         controller: _tabController,
         indicatorColor: Colors.pinkAccent,
-        labelColor: Colors.white,
+        labelColor: const Color.fromARGB(255, 0, 0, 0),
         unselectedLabelColor: Colors.grey,
         tabs: const [
           Tab(text: 'Today'),
@@ -87,7 +102,7 @@ class _TodoViewState extends ConsumerState<TodoView>
                 controller: _tabController,
                 children: [
                   // Today 탭
-                  _buildTodoTab('today'),
+                  _todayBuildTodoTab('today'),
                   // Tomorrow 탭
                   _buildTodoTab('tomorrow'),
                   // Calendar 탭
@@ -99,15 +114,23 @@ class _TodoViewState extends ConsumerState<TodoView>
         ),
       ),
       // Calendar 탭일 때만 FloatingActionButton 노출
-      floatingActionButton: _tabController.index == 2
-          ? FloatingActionButton(
-              onPressed: () {
-                // Calendar 탭에 맞는 동작 구현 (예: 일정 추가)
-              },
-              backgroundColor: Colors.pinkAccent,
-              child: const Icon(Icons.add),
-            )
-          : null,
+      floatingActionButton: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 100),
+        transitionBuilder: (child, animation) => FadeTransition(
+          opacity: animation,
+          child: child,
+        ),
+        child: _tabController.index == 2
+            ? FloatingActionButton(
+                key: const ValueKey('fab'),
+                onPressed: () {
+                  // Calendar 탭에 맞는 동작 구현 (예: 일정 추가)
+                },
+                backgroundColor: Colors.pinkAccent,
+                child: const Icon(Icons.add),
+              )
+            : const SizedBox(key: ValueKey('empty')),
+      ),
     );
   }
 
@@ -123,7 +146,7 @@ class _TodoViewState extends ConsumerState<TodoView>
         startDate: newTodo.startDate,
         endDate: newTodo.startDate,
       );
-      await ref.read(todoViewModelProvider.notifier).addTodo(todoWithDates);
+      await ref.read(calendarViewModelProvider.notifier).addTodo(todoWithDates);
     }
   }
 }
