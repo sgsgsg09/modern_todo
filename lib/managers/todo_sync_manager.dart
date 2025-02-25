@@ -1,4 +1,4 @@
-import 'package:modern_todo/models/todo_item.dart';
+import 'package:modern_todo/models/task.dart';
 import 'package:modern_todo/repository/local/todo_hive_repository.dart';
 import 'package:modern_todo/repository/remote/todo_remote_repository.dart';
 
@@ -11,7 +11,7 @@ class TodoSyncManager {
     required this.remoteRepo,
   });
 
-  Future<void> addTodo(TodoItem todo) async {
+  Future<void> addTodo(Task todo) async {
     // 1. 로컬 업데이트: 빠른 캐시 반영
     await localRepo.addTodo(todo);
 
@@ -24,7 +24,7 @@ class TodoSyncManager {
     }
   }
 
-  Future<void> updateTodo(TodoItem todo) async {
+  Future<void> updateTodo(Task todo) async {
     await localRepo.updateTodo(todo);
     try {
       await remoteRepo.updateTodo(todo);
@@ -33,7 +33,7 @@ class TodoSyncManager {
     }
   }
 
-  Future<void> deleteTodo(TodoItem todo) async {
+  Future<void> deleteTodo(Task todo) async {
     await localRepo.deleteTodo(todo);
     try {
       await remoteRepo.deleteTodo(todo);
@@ -42,7 +42,7 @@ class TodoSyncManager {
     }
   }
 
-  Future<List<TodoItem>> fetchTodos({DateTime? date}) async {
+  Future<List<Task>> fetchTodos({DateTime? date}) async {
     // 빠른 사용자 경험을 위해 먼저 로컬 데이터를 반환
     final localTodos = await localRepo.fetchTodos(date: date);
 

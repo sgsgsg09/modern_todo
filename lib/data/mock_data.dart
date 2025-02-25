@@ -1,88 +1,79 @@
+// mock_tasks.dart
 import 'package:flutter/material.dart';
-import '../models/todo_item.dart';
+import 'package:modern_todo/models/task.dart';
+import 'package:modern_todo/models/task_category.dart';
 
-List<TodoItem> getMockTodoItems() {
-  return [
-    // 1. 일반 미팅
-    TodoItem(
-      id: 1,
-      isAllDay: false,
-      startDate: DateTime(2025, 3, 20, 9, 0),
-      endDate: DateTime(2025, 3, 20, 10, 0),
-      title: "프로젝트 스탠드업 미팅",
-      description: "팀과 진행 상황 점검 및 오늘의 할 일 논의",
-      color: Colors.blue.value,
-      photoUrls: [],
-    ),
-    // 2. 하루 종일 이벤트
-    TodoItem(
-      id: 2,
-      isAllDay: true,
-      startDate: DateTime(2025, 4, 5),
-      endDate: DateTime(2025, 4, 5),
-      title: "공휴일",
-      description: "국경일로 인한 휴일, 휴식 및 재충전",
-      color: Colors.green.value,
-      photoUrls: [],
-    ),
-    // 3. 클라이언트 미팅 (사진 첨부 포함)
-    TodoItem(
-      id: 3,
-      isAllDay: false,
-      startDate: DateTime(2025, 3, 25, 14, 30),
-      endDate: DateTime(2025, 3, 25, 16, 0),
-      title: "클라이언트 미팅",
-      description: "새로운 요구사항 논의를 위한 미팅. 장소: 회의실 A",
-      color: Colors.orange.value,
-      photoUrls: [
-        "https://picsum.photos/250/250",
-        "https://picsum.photos/250/250"
-      ],
-    ),
-    // 4. 장기 여행 (여러 날에 걸친 하루 종일 이벤트)
-    TodoItem(
-      id: 4,
-      isAllDay: true,
-      startDate: DateTime(2025, 5, 1),
-      endDate: DateTime(2025, 5, 7),
-      title: "가족 여행",
-      description: "해변과 산을 넘나드는 가족 여행",
-      color: Colors.purple.value,
-      photoUrls: [
-        "https://example.com/images/vacation_1.jpg",
-        "https://example.com/images/vacation_2.jpg"
-      ],
-    ),
-    // 5. 외부 미팅
-    TodoItem(
-      id: 5,
-      isAllDay: false,
-      startDate: DateTime(2025, 2, 18, 11, 0),
-      endDate: DateTime(2025, 3, 28, 12, 30),
-      title: "외부 협력업체 미팅",
-      description: "프로젝트 진행을 위한 외부 미팅. 장소: 본사 회의실",
-      color: Colors.red.value,
-      photoUrls: [],
-    ),
-    TodoItem(
-      id: 5,
-      isAllDay: false,
-      startDate: DateTime(2025, 2, 19, 11, 0),
-      endDate: DateTime(2025, 3, 28, 12, 30),
-      title: "ㅁㄴㅇ",
-      description: "test",
-      color: const Color.fromARGB(255, 105, 97, 97).value,
-      photoUrls: [],
-    ),
-    TodoItem(
-      id: 5,
-      isAllDay: false,
-      startDate: DateTime(2025, 2, 20, 11, 0),
-      endDate: DateTime(2025, 3, 1, 12, 30),
-      title: "외부 협력업체 미팅",
-      description: "test",
-      color: const Color.fromARGB(255, 58, 143, 255).value,
-      photoUrls: [],
-    ),
-  ];
-}
+final mockTasks = <Task>[
+  Task(
+    id: 1,
+    title: "집 청소하기",
+    isCompleted: false,
+    date: DateTime(2023, 7, 4),
+    startTime: const TimeOfDay(hour: 10, minute: 0),
+    durationInMinutes: 60,
+    category: TaskCategory.todo,
+    colorValue: Colors.purple.value,
+    notes: "방, 거실, 주방 순으로 청소하기",
+    photoUrls: ["https://example.com/images/clean_room.jpg"],
+  ),
+  Task(
+    id: 2,
+    title: "보고서 마무리하기",
+    isCompleted: false,
+    date: DateTime(2023, 7, 4),
+    startTime: const TimeOfDay(hour: 13, minute: 30),
+    durationInMinutes: 90,
+    category: TaskCategory.todo,
+    colorValue: Colors.blue.value,
+    notes: "주간 업무 보고서 최종 검수",
+    photoUrls: [],
+  ),
+  Task(
+    id: 3,
+    title: "장보기",
+    isCompleted: false,
+    date: DateTime(2023, 7, 4),
+    startTime: const TimeOfDay(hour: 17, minute: 0),
+    durationInMinutes: 30,
+    category: TaskCategory.todo,
+    colorValue: Colors.green.value,
+    notes: "채소, 과일, 생필품 구매",
+    photoUrls: ["https://example.com/images/grocery.jpg"],
+  ),
+  Task(
+    id: 4,
+    title: "저녁 운동",
+    isCompleted: true,
+    date: DateTime(2023, 7, 4),
+    startTime: const TimeOfDay(hour: 19, minute: 0),
+    durationInMinutes: 60,
+    category: TaskCategory.routine,
+    colorValue: Colors.orange.value,
+    notes: "30분 러닝 + 30분 근력 운동",
+    photoUrls: [],
+  ),
+  Task(
+    id: 5,
+    title: "친구와 약속",
+    isCompleted: false,
+    date: DateTime(2023, 7, 5),
+    startTime: const TimeOfDay(hour: 18, minute: 0),
+    durationInMinutes: 120,
+    category: TaskCategory.event,
+    colorValue: Colors.red.value,
+    notes: "카페에서 만남 후 저녁 식사 예정",
+    photoUrls: [],
+  ),
+  Task(
+    id: 6,
+    title: "개인 프로젝트 아이디어 정리",
+    isCompleted: false,
+    date: DateTime(2023, 7, 5),
+    startTime: const TimeOfDay(hour: 20, minute: 0),
+    durationInMinutes: 45,
+    category: TaskCategory.my,
+    colorValue: Colors.pink.value,
+    notes: "노트 앱에 아이디어 간단히 정리하기",
+    photoUrls: [],
+  ),
+];

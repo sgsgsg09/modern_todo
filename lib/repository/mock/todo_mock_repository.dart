@@ -1,57 +1,57 @@
 import 'dart:async';
 import 'package:modern_todo/data/mock_data.dart';
-import 'package:modern_todo/models/todo_item.dart';
+import 'package:modern_todo/models/task.dart';
 import '../todo_abstract_repository.dart';
 
 class TodoMockRepository implements TodoAbstractRepository {
   // 메모리 내 저장소 (초기에는 빈 리스트, 필요하면 초기 목 데이터를 넣을 수 있음)
-  final List<TodoItem> _todos = [];
+  final List<Task> _tasks = [];
 
   TodoMockRepository() {
-    _todos.addAll(getMockTodoItems());
+    _tasks.addAll((mockTasks));
   }
 
   @override
-  Future<List<TodoItem>> fetchTodos({DateTime? date}) async {
+  Future<List<Task>> fetchTodos({DateTime? date}) async {
     // 딜레이를 주어 네트워크 호출과 유사하게 동작하도록 함
     await Future.delayed(Duration(milliseconds: 500));
     if (date == null) {
-      return _todos;
+      return _tasks;
     } else {
       // 날짜가 일치하는 항목만 반환 (날짜만 비교)
-      return _todos.where((todo) {
-        return todo.startDate.year == date.year &&
-            todo.startDate.month == date.month &&
-            todo.startDate.day == date.day;
+      return _tasks.where((task) {
+        return task.date.year == date.year &&
+            task.date.month == date.month &&
+            task.date.day == date.day;
       }).toList();
     }
   }
 
   @override
-  Future<void> addTodo(TodoItem todo) async {
+  Future<void> addTodo(Task task) async {
     await Future.delayed(Duration(milliseconds: 300));
     // id가 null이면 auto-increment 시뮬레이션
-    final newId = _todos.isEmpty
+    final newId = _tasks.isEmpty
         ? 1
-        : _todos.map((t) => t.id ?? 0).reduce((a, b) => a > b ? a : b) + 1;
-    final newTodo = todo.copyWith(id: newId);
-    _todos.add(newTodo);
+        : _tasks.map((t) => t.id ?? 0).reduce((a, b) => a > b ? a : b) + 1;
+    final newTask = task.copyWith(id: newId);
+    _tasks.add(newTask);
   }
 
   @override
-  Future<void> updateTodo(TodoItem todo) async {
+  Future<void> updateTodo(Task task) async {
     await Future.delayed(Duration(milliseconds: 300));
-    final index = _todos.indexWhere((t) => t.id == todo.id);
+    final index = _tasks.indexWhere((t) => t.id == task.id);
     if (index != -1) {
-      _todos[index] = todo;
+      _tasks[index] = task;
     } else {
-      throw Exception("Todo not found");
+      throw Exception("Task not found");
     }
   }
 
   @override
-  Future<void> deleteTodo(TodoItem todo) async {
+  Future<void> deleteTodo(Task task) async {
     await Future.delayed(Duration(milliseconds: 300));
-    _todos.removeWhere((t) => t.id == todo.id);
+    _tasks.removeWhere((t) => t.id == task.id);
   }
 }

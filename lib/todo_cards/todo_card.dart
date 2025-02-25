@@ -1,6 +1,6 @@
 import 'dart:async'; // Timer 사용을 위해 추가
 import 'package:flutter/material.dart';
-import 'package:modern_todo/models/todo_item.dart';
+import 'package:modern_todo/models/task.dart';
 import 'package:modern_todo/core/theme/app_theme.dart';
 
 class TodoCard extends StatefulWidget {
@@ -44,7 +44,18 @@ class _TodoCardState extends State<TodoCard> {
 
   String _formatDuration(Duration duration) {
     if (duration.isNegative) {
-      return "시간 초과";
+      final elapsed = DateTime.now().difference(widget.todo.startDate);
+      int hours = elapsed.inHours;
+      int minutes = elapsed.inMinutes.remainder(60);
+      int seconds = elapsed.inSeconds.remainder(60);
+
+      if (hours > 0) {
+        return "$hours시간 : $minutes분 경과";
+      } else if (minutes > 0) {
+        return "$minutes분 : $seconds초 경과";
+      } else {
+        return "$seconds초 경과";
+      }
     }
 
     int hours = duration.inHours;
@@ -52,11 +63,11 @@ class _TodoCardState extends State<TodoCard> {
     int seconds = duration.inSeconds.remainder(60);
 
     if (hours > 0) {
-      return "$hours시간 $minutes분 남음";
+      return "$hours시간 : $minutes분 남음";
     } else if (minutes > 0) {
-      return "$minutes분 $seconds초 남음";
+      return "$minutes분 : $seconds초";
     } else {
-      return "$seconds초 남음";
+      return "$seconds초";
     }
   }
 
@@ -93,8 +104,8 @@ class _TodoCardState extends State<TodoCard> {
                 children: [
                   Text(
                     widget.todo.title.length > 10
-                        ? widget.todo.description.substring(0, 10) + '...'
-                        : widget.todo.description,
+                        ? widget.todo.title.substring(0, 10) + '...'
+                        : widget.todo.title,
                     style: AppTheme.todoTitleStyle,
                   ),
                   const SizedBox(height: 4),

@@ -1,4 +1,4 @@
-import 'package:modern_todo/models/todo_item.dart';
+import 'package:modern_todo/models/task.dart';
 
 class TestData {
   final List<TodoItem> _mockTodoList = [

@@ -1,26 +1,28 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'calendars/calendar_viewmodel.dart';
+part of 'repository_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$calendarViewModelHash() => r'c664178e9ea0d29945fe703c0807017e730b87aa';
+String _$repositoryProviderHash() =>
+    r'6c545cf225144f5bbdff5601b469d7075e938d32';
 
-/// See also [CalendarViewModel].
-@ProviderFor(CalendarViewModel)
-final calendarViewModelProvider = AutoDisposeAsyncNotifierProvider<
-    CalendarViewModel, List<TodoItem>>.internal(
-  CalendarViewModel.new,
-  name: r'calendarViewModelProvider',
+/// See also [RepositoryProvider].
+@ProviderFor(RepositoryProvider)
+final repositoryProviderProvider = Provider<TodoAbstractRepository>.internal(
+  RepositoryProvider,
+  name: r'repositoryProviderProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
       ? null
-      : _$calendarViewModelHash,
+      : _$repositoryProviderHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef _$CalendarViewModel = AutoDisposeAsyncNotifier<List<TodoItem>>;
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef RepositoryProviderRef = ProviderRef<TodoAbstractRepository>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

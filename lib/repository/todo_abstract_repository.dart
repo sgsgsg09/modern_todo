@@ -1,12 +1,12 @@
-import 'package:modern_todo/models/todo_item.dart';
+import 'package:modern_todo/models/task.dart';
 
 abstract class TodoAbstractRepository {
   /// 날짜가 null이면 전체 Todo를 반환하고, 날짜가 주어지면 해당 날짜의 Todo를 반환합니다.
-  Future<List<TodoItem>> fetchTodos({DateTime? date});
+  Future<List<Task>> fetchTodos({DateTime? date});
 
-  Future<void> addTodo(TodoItem todo);
-  Future<void> updateTodo(TodoItem todo);
-  Future<void> deleteTodo(TodoItem todo);
+  Future<void> addTodo(Task todo);
+  Future<void> updateTodo(Task todo);
+  Future<void> deleteTodo(Task todo);
 }
 
 /*

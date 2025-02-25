@@ -1,28 +1,26 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'todo_mock_repository_provider.dart';
+part of 'calendar_viewmodel.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$todoMockRepositoryHash() =>
-    r'6e0ee2561b52ef2bee485c3b2f03272b763f7acc';
+String _$calendarViewModelHash() => r'ff1efd0f5983030fa84aa76c8b5d408840541905';
 
-/// See also [todoMockRepository].
-@ProviderFor(todoMockRepository)
-final todoMockRepositoryProvider = Provider<TodoAbstractRepository>.internal(
-  todoMockRepository,
-  name: r'todoMockRepositoryProvider',
+/// See also [CalendarViewModel].
+@ProviderFor(CalendarViewModel)
+final calendarViewModelProvider =
+    AutoDisposeAsyncNotifierProvider<CalendarViewModel, List<Task>>.internal(
+  CalendarViewModel.new,
+  name: r'calendarViewModelProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
       ? null
-      : _$todoMockRepositoryHash,
+      : _$calendarViewModelHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef TodoMockRepositoryRef = ProviderRef<TodoAbstractRepository>;
+typedef _$CalendarViewModel = AutoDisposeAsyncNotifier<List<Task>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
