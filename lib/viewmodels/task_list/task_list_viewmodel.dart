@@ -7,46 +7,76 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'task_list_viewmodel.g.dart';
 
+/// 작업 목록 필터링에 사용할 파라미터 클래스
+class TaskListFilter {
+  final DateTime selectedDate;
+  final TaskCategory? selectedCategory;
+
+  TaskListFilter({required this.selectedDate, this.selectedCategory});
+}
+
 @riverpod
 class TaskListViewModel extends _$TaskListViewModel {
   late final TodoAbstractRepository _repository;
 
-  // family 파라미터를 사용해 선택된 날짜에 해당하는 Task 목록을 로드합니다.
+  /// family 파라미터로 TaskListFilter를 받아 선택된 날짜와 카테고리에 따라 작업 목록을 필터링합니다.
   @override
-  Future<List<Task>> build(DateTime selectedDate) async {
+  Future<List<Task>> build(TaskListFilter filter) async {
     _repository = ref.watch(repositoryProviderProvider);
-    return await _repository.fetchTodos(date: selectedDate);
+    final tasks = await _repository.fetchTodos(date: filter.selectedDate);
+    if (filter.selectedCategory != null) {
+      return tasks
+          .where((task) => task.category.id == filter.selectedCategory!.id)
+          .toList();
+    }
+    return tasks;
   }
 
-  Future<void> addTask(Task task) async {
+  Future<void> addTask(Task task, TaskListFilter filter) async {
     try {
       await _repository.addTodo(task);
-      state = AsyncValue.data(await _repository.fetchTodos(date: task.date));
+      final tasks = await _repository.fetchTodos(date: filter.selectedDate);
+      if (filter.selectedCategory != null) {
+        state = AsyncValue.data(tasks
+            .where((t) => t.category.id == filter.selectedCategory!.id)
+            .toList());
+      } else {
+        state = AsyncValue.data(tasks);
+      }
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }
   }
 
-  Future<void> updateTask(Task task) async {
+  Future<void> updateTask(Task task, TaskListFilter filter) async {
     try {
       await _repository.updateTodo(task);
-      state = AsyncValue.data(await _repository.fetchTodos(date: task.date));
+      final tasks = await _repository.fetchTodos(date: filter.selectedDate);
+      if (filter.selectedCategory != null) {
+        state = AsyncValue.data(tasks
+            .where((t) => t.category.id == filter.selectedCategory!.id)
+            .toList());
+      } else {
+        state = AsyncValue.data(tasks);
+      }
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }
   }
 
-  Future<void> deleteTask(Task task) async {
+  Future<void> deleteTask(Task task, TaskListFilter filter) async {
     try {
       await _repository.deleteTodo(task);
-      state = AsyncValue.data(await _repository.fetchTodos(date: task.date));
+      final tasks = await _repository.fetchTodos(date: filter.selectedDate);
+      if (filter.selectedCategory != null) {
+        state = AsyncValue.data(tasks
+            .where((t) => t.category.id == filter.selectedCategory!.id)
+            .toList());
+      } else {
+        state = AsyncValue.data(tasks);
+      }
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }
-  }
-
-  Future<List<Task>> fetchTasksByCategory(TaskCategory category) async {
-    final allTasks = await _repository.fetchTodos();
-    return allTasks.where((task) => task.category == category).toList();
   }
 }

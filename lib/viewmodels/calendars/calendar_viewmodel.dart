@@ -3,6 +3,7 @@ import 'package:modern_todo/models/task.dart';
 import 'package:modern_todo/repository/todo_abstract_repository.dart';
 import 'package:modern_todo/repository/repository_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 part 'calendar_viewmodel.g.dart';
 
@@ -18,41 +19,38 @@ class CalendarViewModel extends _$CalendarViewModel {
     return await _repository.fetchTodos();
   }
 
-  Future<List<Task>> fetchTodayTasks() async {
-    final today = DateTime.now();
-    return await _repository.fetchTodos(date: today);
+  /// 선택된 날짜에 해당하는 Task 목록을 반환하는 정적 유틸리티 메서드
+  static List<Task> getEventsForDay(DateTime day, List<Task> tasks) {
+    return tasks.where((task) => isSameDay(task.date, day)).toList();
   }
-  /*
-  내일 불러오는 것은 필요 없다고 느낌. 
-  Future<List<Task>> fetchTomorrowTasks() async {
-    final tomorrow = DateTime.now().add(const Duration(days: 1));
-    return await _repository.fetchTodos(date: tomorrow);
-  } */
 
   Future<void> addTask(Task task) async {
     try {
       await _repository.addTodo(task);
-      state = AsyncValue.data(await _repository.fetchTodos());
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
+      final tasks = await _repository.fetchTodos();
+      state = AsyncValue.data(tasks);
+    } catch (error, stackTrace) {
+      state = AsyncValue.error(error, stackTrace);
     }
   }
 
   Future<void> updateTask(Task task) async {
     try {
       await _repository.updateTodo(task);
-      state = AsyncValue.data(await _repository.fetchTodos());
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
+      final tasks = await _repository.fetchTodos();
+      state = AsyncValue.data(tasks);
+    } catch (error, stackTrace) {
+      state = AsyncValue.error(error, stackTrace);
     }
   }
 
   Future<void> deleteTask(Task task) async {
     try {
       await _repository.deleteTodo(task);
-      state = AsyncValue.data(await _repository.fetchTodos());
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
+      final tasks = await _repository.fetchTodos();
+      state = AsyncValue.data(tasks);
+    } catch (error, stackTrace) {
+      state = AsyncValue.error(error, stackTrace);
     }
   }
 }

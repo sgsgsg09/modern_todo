@@ -40,6 +40,7 @@ mixin _$Task {
   int? get durationInMinutes => throw _privateConstructorUsedError;
 
   /// 분류(예: todo, routine, event, my)
+  @TaskCategoryConverter()
   TaskCategory get category => throw _privateConstructorUsedError;
 
   /// 색상 값 (예: Colors.blue.value)
@@ -72,7 +73,7 @@ abstract class $TaskCopyWith<$Res> {
       DateTime date,
       @TimeOfDayConverter() TimeOfDay? startTime,
       int? durationInMinutes,
-      TaskCategory category,
+      @TaskCategoryConverter() TaskCategory category,
       int? colorValue,
       String? notes,
       List<String>? photoUrls});
@@ -163,7 +164,7 @@ abstract class _$$TaskImplCopyWith<$Res> implements $TaskCopyWith<$Res> {
       DateTime date,
       @TimeOfDayConverter() TimeOfDay? startTime,
       int? durationInMinutes,
-      TaskCategory category,
+      @TaskCategoryConverter() TaskCategory category,
       int? colorValue,
       String? notes,
       List<String>? photoUrls});
@@ -248,7 +249,7 @@ class _$TaskImpl implements _Task {
       required this.date,
       @TimeOfDayConverter() this.startTime,
       this.durationInMinutes,
-      required this.category,
+      @TaskCategoryConverter() required this.category,
       this.colorValue,
       this.notes,
       final List<String>? photoUrls})
@@ -285,6 +286,7 @@ class _$TaskImpl implements _Task {
 
   /// 분류(예: todo, routine, event, my)
   @override
+  @TaskCategoryConverter()
   final TaskCategory category;
 
   /// 색상 값 (예: Colors.blue.value)
@@ -375,7 +377,7 @@ abstract class _Task implements Task {
       required final DateTime date,
       @TimeOfDayConverter() final TimeOfDay? startTime,
       final int? durationInMinutes,
-      required final TaskCategory category,
+      @TaskCategoryConverter() required final TaskCategory category,
       final int? colorValue,
       final String? notes,
       final List<String>? photoUrls}) = _$TaskImpl;
@@ -409,6 +411,7 @@ abstract class _Task implements Task {
 
   /// 분류(예: todo, routine, event, my)
   @override
+  @TaskCategoryConverter()
   TaskCategory get category;
 
   /// 색상 값 (예: Colors.blue.value)

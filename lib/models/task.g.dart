@@ -14,7 +14,8 @@ _$TaskImpl _$$TaskImplFromJson(Map<String, dynamic> json) => _$TaskImpl(
       startTime: const TimeOfDayConverter()
           .fromJson(json['startTime'] as Map<String, int>?),
       durationInMinutes: (json['durationInMinutes'] as num?)?.toInt(),
-      category: $enumDecode(_$TaskCategoryEnumMap, json['category']),
+      category: const TaskCategoryConverter()
+          .fromJson(json['category'] as Map<String, dynamic>),
       colorValue: (json['colorValue'] as num?)?.toInt(),
       notes: json['notes'] as String?,
       photoUrls: (json['photoUrls'] as List<dynamic>?)
@@ -30,15 +31,8 @@ Map<String, dynamic> _$$TaskImplToJson(_$TaskImpl instance) =>
       'date': instance.date.toIso8601String(),
       'startTime': const TimeOfDayConverter().toJson(instance.startTime),
       'durationInMinutes': instance.durationInMinutes,
-      'category': _$TaskCategoryEnumMap[instance.category]!,
+      'category': const TaskCategoryConverter().toJson(instance.category),
       'colorValue': instance.colorValue,
       'notes': instance.notes,
       'photoUrls': instance.photoUrls,
     };
-
-const _$TaskCategoryEnumMap = {
-  TaskCategory.todo: 'todo',
-  TaskCategory.routine: 'routine',
-  TaskCategory.event: 'event',
-  TaskCategory.my: 'my',
-};

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:modern_todo/todo_cards/todo_card.dart';
+import 'package:modern_todo/core/theme/app_theme.dart';
+import 'package:modern_todo/core/theme/color_palette.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:modern_todo/models/task.dart';
 import 'package:modern_todo/viewmodels/calendars/calendar_viewmodel.dart';
@@ -21,140 +22,36 @@ class _CalendarViewState extends ConsumerState<CalendarView> {
     final calendarAsync = ref.watch(calendarViewModelProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: AppTheme.primaryColor, // 테마 색상 사용
       body: SafeArea(
         child: Column(
           children: [
-            // 상단: 어두운 배경에 달력 표시
+            // 달력 부분 위젯 분리
             calendarAsync.when(
-              data: (todos) => Container(
-                color: const Color(0xFF121212),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: TableCalendar<TodoItem>(
-                  firstDay: DateTime(2000),
-                  lastDay: DateTime(2100),
-                  focusedDay: _focusedDay,
-                  selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-                  onDaySelected: (selectedDay, focusedDay) {
-                    setState(() {
-                      _selectedDay = selectedDay;
-                      _focusedDay = focusedDay;
-                    });
-                  },
-                  // CalendarViewModel의 getEventsForDay 사용
-                  eventLoader: (day) =>
-                      CalendarViewModel.getEventsForDay(day, todos),
-                  calendarStyle: CalendarStyle(
-                    defaultTextStyle: const TextStyle(color: Colors.white),
-                    weekendTextStyle: const TextStyle(color: Colors.white70),
-                    todayDecoration: BoxDecoration(
-                      color: Colors.grey[700],
-                      shape: BoxShape.circle,
-                    ),
-                    selectedDecoration: const BoxDecoration(
-                      color: Colors.pinkAccent,
-                      shape: BoxShape.circle,
-                    ),
-                    outsideTextStyle: TextStyle(color: Colors.grey[700]),
-                    markersAutoAligned: false,
-                    markerDecoration: const BoxDecoration(
-                      color: Colors.blueAccent,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  daysOfWeekStyle: DaysOfWeekStyle(
-                    weekdayStyle: TextStyle(color: Colors.grey[400]),
-                    weekendStyle: TextStyle(color: Colors.grey[400]),
-                  ),
-                  headerStyle: HeaderStyle(
-                    titleCentered: true,
-                    formatButtonVisible: false,
-                    titleTextStyle: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    leftChevronIcon:
-                        const Icon(Icons.chevron_left, color: Colors.white),
-                    rightChevronIcon:
-                        const Icon(Icons.chevron_right, color: Colors.white),
-                  ),
-                  calendarBuilders: CalendarBuilders(
-                    markerBuilder: (context, day, events) {
-                      if (events.isNotEmpty) {
-                        return Positioned(
-                          bottom: 4,
-                          child: _buildMarker(events.cast<TodoItem>()),
-                        );
-                      }
-                      return const SizedBox.shrink();
-                    },
-                  ),
-                ),
+              data: (tasks) => CalendarTableWidget(
+                tasks: tasks,
+                focusedDay: _focusedDay,
+                selectedDay: _selectedDay,
+                onDaySelected: (selectedDay, focusedDay) {
+                  setState(() {
+                    _selectedDay = selectedDay;
+                    _focusedDay = focusedDay;
+                  });
+                },
               ),
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, st) => Center(child: Text("오류 발생: $error")),
+              error: (error, st) => Center(
+                child: Text(
+                  "오류 발생: $error",
+                  style: TextStyle(color: AppTheme.errorColor),
+                ),
+              ),
             ),
-
-            // 하단: Upcoming 섹션 (흰색 배경 + 둥근 모서리)
+            // Upcoming 섹션 위젯 분리
             Expanded(
-              child: Container(
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(24),
-                    topRight: Radius.circular(24),
-                  ),
-                ),
-                child: calendarAsync.when(
-                  data: (todos) {
-                    final events =
-                        CalendarViewModel.getEventsForDay(_selectedDay, todos);
-                    return Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: events.isEmpty
-                          ? const Center(child: Text("해당 날짜에 일정이 없습니다."))
-                          : Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  "Upcoming",
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                Expanded(
-                                  child: ListView.builder(
-                                    itemCount: events.length,
-                                    itemBuilder: (context, index) {
-                                      final todo = events[index];
-                                      return AnimatedSwitcher(
-                                        duration:
-                                            const Duration(milliseconds: 300),
-                                        transitionBuilder: (child, animation) =>
-                                            FadeTransition(
-                                          opacity: animation,
-                                          child: child,
-                                        ),
-                                        child: TodoCard(
-                                          key: ValueKey(todo.id),
-                                          todo: todo,
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-                    );
-                  },
-                  loading: () =>
-                      const Center(child: CircularProgressIndicator()),
-                  error: (error, st) => Center(child: Text("오류 발생: $error")),
-                ),
+              child: UpcomingTasksSection(
+                tasksFuture: calendarAsync,
+                selectedDay: _selectedDay,
               ),
             ),
           ],
@@ -162,8 +59,164 @@ class _CalendarViewState extends ConsumerState<CalendarView> {
       ),
     );
   }
+}
 
-  Widget _buildMarker(List<TodoItem> events) {
+class CalendarTableWidget extends StatelessWidget {
+  final List<Task> tasks;
+  final DateTime focusedDay;
+  final DateTime selectedDay;
+  final Function(DateTime, DateTime) onDaySelected;
+
+  const CalendarTableWidget({
+    Key? key,
+    required this.tasks,
+    required this.focusedDay,
+    required this.selectedDay,
+    required this.onDaySelected,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: AppTheme.primaryColor, // 테마에서 가져온 색상 사용
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: TableCalendar<Task>(
+        firstDay: DateTime(2000),
+        lastDay: DateTime(2100),
+        focusedDay: focusedDay,
+        selectedDayPredicate: (day) => isSameDay(selectedDay, day),
+        onDaySelected: onDaySelected,
+        // Task 목록을 필터링하는 유틸리티 메서드 사용
+        eventLoader: (day) => CalendarViewModel.getEventsForDay(day, tasks),
+        calendarStyle: CalendarStyle(
+          defaultTextStyle: const TextStyle(color: Colors.white),
+          weekendTextStyle: const TextStyle(color: Colors.white70),
+          todayDecoration: BoxDecoration(
+            color: AppColors.secondary, // AppColors로 보조 색상 사용
+            shape: BoxShape.circle,
+          ),
+          selectedDecoration: BoxDecoration(
+            color: AppTheme.accentColor,
+            shape: BoxShape.circle,
+          ),
+          outsideTextStyle: TextStyle(color: AppTheme.greyColor),
+          markersAutoAligned: false,
+          markerDecoration: BoxDecoration(
+            color: AppColors.secondaryVariant,
+            shape: BoxShape.circle,
+          ),
+        ),
+        daysOfWeekStyle: DaysOfWeekStyle(
+          weekdayStyle: TextStyle(color: AppTheme.greyColor),
+          weekendStyle: TextStyle(color: AppTheme.greyColor),
+        ),
+        headerStyle: HeaderStyle(
+          titleCentered: true,
+          formatButtonVisible: false,
+          titleTextStyle: const TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+          leftChevronIcon: Icon(Icons.chevron_left, color: Colors.white),
+          rightChevronIcon: Icon(Icons.chevron_right, color: Colors.white),
+        ),
+        calendarBuilders: CalendarBuilders(
+          markerBuilder: (context, day, events) {
+            if (events.isNotEmpty) {
+              return Positioned(
+                bottom: 4,
+                child: MarkerWidget(events: events.cast<Task>()),
+              );
+            }
+            return const SizedBox.shrink();
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class UpcomingTasksSection extends StatelessWidget {
+  final AsyncValue<List<Task>> tasksFuture;
+  final DateTime selectedDay;
+
+  const UpcomingTasksSection({
+    Key? key,
+    required this.tasksFuture,
+    required this.selectedDay,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTheme.todoCardBackground, // 테마 색상 사용
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(24),
+          topRight: Radius.circular(24),
+        ),
+      ),
+      child: tasksFuture.when(
+        data: (tasks) {
+          final events = CalendarViewModel.getEventsForDay(selectedDay, tasks);
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: events.isEmpty
+                ? Center(
+                    child: Text(
+                      "해당 날짜에 일정이 없습니다.",
+                      style: TextStyle(color: AppTheme.greyColor),
+                    ),
+                  )
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Upcoming",
+                        style: AppTheme.headerTitleStyle,
+                      ),
+                      const SizedBox(height: 12),
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: events.length,
+                          itemBuilder: (context, index) {
+                            final task = events[index];
+                            return AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 300),
+                              transitionBuilder: (child, animation) =>
+                                  FadeTransition(
+                                opacity: animation,
+                                child: child,
+                              ),
+                              // child: TodoCard(
+                              //   key: ValueKey(task.id),
+                              //   todo: task,
+                              // ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, st) => Center(
+            child: Text("오류 발생: $error",
+                style: TextStyle(color: AppTheme.errorColor))),
+      ),
+    );
+  }
+}
+
+class MarkerWidget extends StatelessWidget {
+  final List<Task> events;
+
+  const MarkerWidget({Key? key, required this.events}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     if (events.length <= 3) {
       return Row(
         mainAxisSize: MainAxisSize.min,
@@ -174,7 +227,8 @@ class _CalendarViewState extends ConsumerState<CalendarView> {
                   height: 7,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Color(event.color),
+                    color:
+                        Color((event.colorValue ?? AppColors.primary) as int),
                   ),
                 ))
             .toList(),
@@ -186,7 +240,7 @@ class _CalendarViewState extends ConsumerState<CalendarView> {
             height: 7,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Color(event.color),
+              color: Color((event.colorValue ?? AppColors.primary) as int),
             ),
           ));
       final moreCount = events.length - 3;
@@ -197,9 +251,9 @@ class _CalendarViewState extends ConsumerState<CalendarView> {
           Container(
             margin: const EdgeInsets.only(left: 2),
             padding: const EdgeInsets.all(2),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.grey,
+              color: AppTheme.greyColor,
             ),
             child: Text(
               '+$moreCount',

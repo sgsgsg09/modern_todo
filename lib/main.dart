@@ -27,7 +27,7 @@ class MyApp extends ConsumerWidget {
     return MaterialApp(
       title: 'Modern Todo',
       home: Scaffold(
-        body: const TodoView(),
+        body: SafeArea(child: const TodoView()),
       ),
     );
   }

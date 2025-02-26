@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:modern_todo/core/theme/app_theme.dart';
+import 'package:modern_todo/core/theme/color_palette.dart';
 import 'package:modern_todo/models/task.dart';
-import 'package:modern_todo/viewmodels/calendars/calendar_viewmodel.dart';
-import 'package:modern_todo/views/calendar_view.dart';
-import 'package:modern_todo/views/todo_widgets/header_section.dart';
-import 'package:modern_todo/todo_cards/todo_card.dart';
-import 'package:modern_todo/views/todo_widgets/add_todo_dotted_card.dart';
-import 'package:modern_todo/views/todo_widgets/add_todo_BottomSheet.dart';
+import 'package:modern_todo/models/task_category.dart';
+import 'package:modern_todo/viewmodels/task_list/task_list_viewmodel.dart';
 
 class TodoView extends ConsumerStatefulWidget {
   const TodoView({Key? key}) : super(key: key);
@@ -15,251 +13,283 @@ class TodoView extends ConsumerStatefulWidget {
   ConsumerState<TodoView> createState() => _TodoViewState();
 }
 
-class _TodoViewState extends ConsumerState<TodoView>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+class _TodoViewState extends ConsumerState<TodoView> {
+  // 현재 선택된 날짜 (기본 오늘 날짜)
+  DateTime _currentDate = DateTime.now();
+  // 선택된 TaskCategory (null이면 전체 작업)
+  TaskCategory? _selectedCategory;
 
-  @override
-  void initState() {
-    super.initState();
-    // Today, Tomorrow, Calendar 탭 3개 구성
-    _tabController = TabController(length: 3, vsync: this);
-    _tabController.addListener(() {
-      if (!_tabController.indexIsChanging) {
-        setState(() {});
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
-
-  /// 탭에 따른 Todo 목록과 HeaderSection을 함께 보여주는 위젯
-  Widget _buildTodoTab(String filter) {
-    final todosAsyncValue = ref.watch(calendarViewModelProvider);
-    return Column(
-      children: [
-        Expanded(
-          child: _TodoList(
-            filter: filter,
-            todosAsyncValue: todosAsyncValue,
-            onAddTodo: _AddTodoBottomSheet,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _todayBuildTodoTab(String filter) {
-    final todosAsyncValue = ref.watch(calendarViewModelProvider);
-    return Column(
-      children: [
-        const HeaderSection(),
-        Expanded(
-          child: _TodoList(
-            filter: filter,
-            todosAsyncValue: todosAsyncValue,
-            onAddTodo: _AddTodoBottomSheet,
-          ),
-        ),
-      ],
-    );
-  }
+  // 예시용 TaskCategory 목록 (실제 앱에서는 DB나 Provider로 관리)
+  final List<TaskCategory> _categories = [
+    TaskCategory(id: 1, name: '일정', colorValue: AppColors.primary.value),
+    TaskCategory(id: 2, name: '루틴', colorValue: AppColors.secondary.value),
+    TaskCategory(id: 3, name: '이벤트', colorValue: AppColors.error.value),
+    TaskCategory(
+        id: 4, name: '개인 설정', colorValue: AppColors.secondaryVariant.value),
+  ];
 
   @override
   Widget build(BuildContext context) {
+    // TaskListFilter를 구성하여 TaskListViewModel에 전달
+    final filter = TaskListFilter(
+        selectedDate: _currentDate, selectedCategory: _selectedCategory);
+    final tasksAsyncValue = ref.watch(taskListViewModelProvider(filter));
+
     return Scaffold(
-      body: SafeArea(
-        child: Row(
-          children: [
-            // 왼쪽 영역: 사용자 정의 색상에 따라 스타일링한 커스텀 탭바
-            Container(
-              width: 120,
-              padding: const EdgeInsets.all(8),
-              child: CustomTabBar(
-                currentIndex: _tabController.index,
-                onTabSelected: (index) {
-                  _tabController.animateTo(index);
-                  setState(() {});
-                },
-              ),
-            ),
-            // 오른쪽 영역: 각 탭의 내용
-            Expanded(
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  _todayBuildTodoTab('today'),
-                  _buildTodoTab('tomorrow'),
-                  const CalendarView(key: ValueKey('calendar')),
-                ],
-              ),
-            ),
-          ],
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(60),
+        child: HeaderWidget(
+          currentDate: _currentDate,
+          onTodayPressed: () {
+            setState(() {
+              _currentDate = DateTime.now();
+            });
+          },
+          onCalendarPressed: () {
+            // 캘린더 페이지로 이동하는 로직 구현
+          },
         ),
       ),
-      // Calendar 탭일 때만 FloatingActionButton 노출
-      floatingActionButton: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 100),
-        transitionBuilder: (child, animation) => FadeTransition(
-          opacity: animation,
-          child: child,
-        ),
-        child: _tabController.index == 2
-            ? FloatingActionButton(
-                key: const ValueKey('fab'),
-                onPressed: () {
-                  // Calendar 탭에 맞는 동작 구현 (예: 일정 추가)
-                },
-                backgroundColor: Colors.pinkAccent,
-                child: const Icon(Icons.add),
-              )
-            : const SizedBox(key: ValueKey('empty')),
-      ),
-    );
-  }
-
-  /// 새 Todo 항목을 추가하는 바텀 시트 오픈
-  Future<void> _AddTodoBottomSheet() async {
-    final newTodo = await showModalBottomSheet<TodoItem>(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) => const AddTodoBottomSheet(),
-    );
-    if (newTodo != null) {
-      final todoWithDates = newTodo.copyWith(
-        startDate: newTodo.startDate,
-        endDate: newTodo.isAllDay ? newTodo.startDate : newTodo.endDate,
-      );
-      await ref.read(calendarViewModelProvider.notifier).addTodo(todoWithDates);
-    }
-  }
-}
-
-/// CustomTabBar: 사용자 정의 색상에 따라 각 탭을 동적으로 꾸밀 수 있는 커스텀 탭바 위젯
-class CustomTabBar extends ConsumerWidget {
-  final int currentIndex;
-  final Function(int) onTabSelected;
-
-  const CustomTabBar({
-    Key? key,
-    required this.currentIndex,
-    required this.onTabSelected,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // 아래 색상들은 예시이며, 실제로는 viewmodel이나 별도 Provider를 통해 사용자가 정의한 색상을 받아오면 됩니다.
-    Color todayActiveColor = Colors.blue;
-    Color tomorrowActiveColor = Colors.green;
-    Color calendarActiveColor = Colors.orange;
-
-    // 각 탭에 대한 정보
-    final tabs = [
-      {'title': 'Today', 'activeColor': todayActiveColor},
-      {'title': 'Tomorrow', 'activeColor': tomorrowActiveColor},
-      {'title': 'Calendar', 'activeColor': calendarActiveColor},
-    ];
-
-    return Column(
-      children: List.generate(tabs.length, (index) {
-        final tab = tabs[index];
-        final bool isSelected = index == currentIndex;
-        return GestureDetector(
-          onTap: () => onTabSelected(index),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            margin: const EdgeInsets.symmetric(vertical: 4),
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-            decoration: BoxDecoration(
-              color:
-                  isSelected ? tab['activeColor'] as Color : Colors.grey[300],
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Center(
-              child: Text(
-                tab['title'] as String,
-                style: TextStyle(
-                  color: isSelected ? Colors.white : Colors.black,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+      body: Row(
+        children: [
+          // 왼쪽 사이드 탭: TaskCategory 목록
+          SidebarWidget(
+            categories: _categories,
+            selectedCategory: _selectedCategory,
+            onCategorySelected: (category) {
+              setState(() {
+                _selectedCategory = category;
+              });
+            },
+          ),
+          // 오른쪽 메인 콘텐츠 영역: 필터링된 작업 목록 표시
+          Expanded(
+            child: MainContentWidget(
+              tasksAsyncValue: tasksAsyncValue,
+              borderColor: _selectedCategory != null
+                  ? Color(_selectedCategory!.colorValue)
+                  : Colors.transparent,
             ),
           ),
-        );
-      }),
+        ],
+      ),
+      // 하단 오른쪽 플로팅 액션 버튼 (새 작업 추가)
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: AppTheme.accentColor,
+        onPressed: () {
+          // 새 작업 추가 액션 구현
+        },
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }
 
-/// Todo 목록을 필터링하여 보여주는 위젯
-class _TodoList extends StatelessWidget {
-  final String filter;
-  final AsyncValue<List<TodoItem>> todosAsyncValue;
-  final VoidCallback onAddTodo;
+/// 헤더 영역 위젯
+class HeaderWidget extends StatelessWidget {
+  final DateTime currentDate;
+  final VoidCallback onTodayPressed;
+  final VoidCallback onCalendarPressed;
 
-  const _TodoList({
+  const HeaderWidget({
     Key? key,
-    required this.filter,
-    required this.todosAsyncValue,
-    required this.onAddTodo,
+    required this.currentDate,
+    required this.onTodayPressed,
+    required this.onCalendarPressed,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return todosAsyncValue.when(
-      data: (todos) {
-        final now = DateTime.now();
-        final today = DateTime(now.year, now.month, now.day);
-        final tomorrow = DateTime(now.year, now.month, now.day + 1);
-
-        bool isWithinRange(DateTime day, TodoItem item) {
-          final d = DateTime(day.year, day.month, day.day);
-          final start = DateTime(
-              item.startDate.year, item.startDate.month, item.startDate.day);
-          final end =
-              DateTime(item.endDate.year, item.endDate.month, item.endDate.day);
-          return !d.isBefore(start) && !d.isAfter(end);
-        }
-
-        List<TodoItem> filtered = todos;
-        if (filter == 'today') {
-          filtered = todos.where((t) => isWithinRange(today, t)).toList();
-        } else if (filter == 'tomorrow') {
-          filtered = todos.where((t) => isWithinRange(tomorrow, t)).toList();
-        }
-
-        if (filtered.isEmpty) {
-          return Center(child: AddTodoDottedCard(onTap: onAddTodo));
-        }
-
-        return ListView.builder(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          itemCount: filtered.length + 1,
-          itemBuilder: (context, index) {
-            if (index < filtered.length) {
-              final todo = filtered[index];
-              return TodoCard(todo: todo);
-            } else {
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: AddTodoDottedCard(onTap: onAddTodo),
-              );
-            }
-          },
-        );
-      },
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stack) => Center(
-        child: Text(
-          "오류 발생: $error",
-          style: const TextStyle(color: Colors.red),
-        ),
+    // 날짜 포맷: "July 4th 23.Mon"
+    final formattedDate =
+        "${_monthName(currentDate.month)} ${currentDate.day}th ${currentDate.year % 100}.${_dayOfWeek(currentDate.weekday)}";
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      color: AppTheme.primaryColor,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(formattedDate, style: AppTheme.headerTitleStyle),
+          Row(
+            children: [
+              TextButton(
+                onPressed: onTodayPressed,
+                child:
+                    const Text("TODAY", style: TextStyle(color: Colors.white)),
+              ),
+              IconButton(
+                onPressed: onCalendarPressed,
+                icon: const Icon(Icons.calendar_today, color: Colors.white),
+              ),
+            ],
+          ),
+        ],
       ),
     );
+  }
+
+  String _monthName(int month) {
+    const months = [
+      "",
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December"
+    ];
+    return months[month];
+  }
+
+  String _dayOfWeek(int weekday) {
+    const weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    return weekdays[(weekday - 1) % 7];
+  }
+}
+
+/// 왼쪽 사이드 탭 위젯
+class SidebarWidget extends StatelessWidget {
+  final List<TaskCategory> categories;
+  final TaskCategory? selectedCategory;
+  final Function(TaskCategory?) onCategorySelected;
+
+  const SidebarWidget({
+    Key? key,
+    required this.categories,
+    required this.selectedCategory,
+    required this.onCategorySelected,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 120,
+      color: AppTheme.primaryColor.withOpacity(0.1),
+      child: ListView(
+        children: [
+          // "전체" 탭: 선택되지 않은 경우 전체 작업 표시
+          GestureDetector(
+            onTap: () => onCategorySelected(null),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              color: selectedCategory == null
+                  ? AppTheme.accentColor
+                  : Colors.transparent,
+              child: Text(
+                "전체",
+                style: TextStyle(
+                    color:
+                        selectedCategory == null ? Colors.white : Colors.black),
+              ),
+            ),
+          ),
+          ...categories.map((category) => GestureDetector(
+                onTap: () => onCategorySelected(category),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  margin: const EdgeInsets.symmetric(vertical: 4),
+                  color: selectedCategory?.id == category.id
+                      ? Color(category.colorValue)
+                      : Colors.grey[300],
+                  child: Text(
+                    category.name,
+                    style: TextStyle(
+                      color: selectedCategory?.id == category.id
+                          ? Colors.white
+                          : Colors.black,
+                    ),
+                  ),
+                ),
+              )),
+        ],
+      ),
+    );
+  }
+}
+
+/// 오른쪽 메인 콘텐츠 영역 위젯
+class MainContentWidget extends StatelessWidget {
+  final AsyncValue<List<Task>> tasksAsyncValue;
+  final Color borderColor;
+
+  const MainContentWidget({
+    Key? key,
+    required this.tasksAsyncValue,
+    required this.borderColor,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(left: BorderSide(width: 10, color: borderColor)),
+      ),
+      child: tasksAsyncValue.when(
+        data: (tasks) => tasks.isEmpty
+            ? Center(child: Text("작업이 없습니다.", style: AppTheme.addTodoTextStyle))
+            : ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: tasks.length,
+                itemBuilder: (context, index) {
+                  final task = tasks[index];
+                  return TaskCard(task: task);
+                },
+              ),
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, st) => Center(
+            child: Text("오류 발생: $error",
+                style: const TextStyle(color: Colors.red))),
+      ),
+    );
+  }
+}
+
+/// 체크리스트 카드 형태의 Task 카드 위젯
+class TaskCard extends StatelessWidget {
+  final Task task;
+  const TaskCard({Key? key, required this.task}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final cardColor =
+        task.isCompleted ? Colors.grey[400] : AppTheme.todoCardBackground;
+    return Card(
+      color: cardColor,
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: ListTile(
+        title: Text(task.title, style: AppTheme.todoTitleStyle),
+        subtitle:
+            Text(_remainingTime(task), style: AppTheme.todoDescriptionStyle),
+        trailing: Container(
+          width: 10,
+          height: 10,
+          decoration: BoxDecoration(
+            color: Color(task.category.colorValue),
+            shape: BoxShape.circle,
+          ),
+        ),
+        onTap: () {
+          // 작업 체크/언체크 로직 구현 (예: 상태 업데이트)
+        },
+      ),
+    );
+  }
+
+  String _remainingTime(Task task) {
+    final now = DateTime.now();
+    final difference = task.date.difference(now);
+    if (difference.isNegative) {
+      return "마감";
+    } else {
+      final hours = difference.inHours;
+      final minutes = difference.inMinutes % 60;
+      return "$hours시간 $minutes분 남음";
+    }
   }
 }

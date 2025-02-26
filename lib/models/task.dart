@@ -47,7 +47,7 @@ class Task with _$Task {
     int? durationInMinutes,
 
     /// 분류(예: todo, routine, event, my)
-    required TaskCategory category,
+    @TaskCategoryConverter() required TaskCategory category,
 
     /// 색상 값 (예: Colors.blue.value)
     int? colorValue,
@@ -60,4 +60,27 @@ class Task with _$Task {
   }) = _Task;
 
   factory Task.fromJson(Map<String, dynamic> json) => _$TaskFromJson(json);
+}
+
+class TaskCategoryConverter
+    implements JsonConverter<TaskCategory, Map<String, dynamic>> {
+  const TaskCategoryConverter();
+
+  @override
+  TaskCategory fromJson(Map<String, dynamic> json) {
+    return TaskCategory(
+      id: json['id'] as int,
+      name: json['name'] as String,
+      colorValue: json['colorValue'] as int,
+    );
+  }
+
+  @override
+  Map<String, dynamic> toJson(TaskCategory object) {
+    return <String, dynamic>{
+      'id': object.id,
+      'name': object.name,
+      'colorValue': object.colorValue,
+    };
+  }
 }

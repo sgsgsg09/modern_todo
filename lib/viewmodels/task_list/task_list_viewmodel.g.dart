@@ -6,7 +6,7 @@ part of 'task_list_viewmodel.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$taskListViewModelHash() => r'a9f3933af2584231b4ee66033a44838e962e4d6d';
+String _$taskListViewModelHash() => r'920f8fd8f9418241a2167318281223f9ec2d353f';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -31,10 +31,10 @@ class _SystemHash {
 
 abstract class _$TaskListViewModel
     extends BuildlessAutoDisposeAsyncNotifier<List<Task>> {
-  late final DateTime selectedDate;
+  late final TaskListFilter filter;
 
   FutureOr<List<Task>> build(
-    DateTime selectedDate,
+    TaskListFilter filter,
   );
 }
 
@@ -49,10 +49,10 @@ class TaskListViewModelFamily extends Family<AsyncValue<List<Task>>> {
 
   /// See also [TaskListViewModel].
   TaskListViewModelProvider call(
-    DateTime selectedDate,
+    TaskListFilter filter,
   ) {
     return TaskListViewModelProvider(
-      selectedDate,
+      filter,
     );
   }
 
@@ -61,7 +61,7 @@ class TaskListViewModelFamily extends Family<AsyncValue<List<Task>>> {
     covariant TaskListViewModelProvider provider,
   ) {
     return call(
-      provider.selectedDate,
+      provider.filter,
     );
   }
 
@@ -85,9 +85,9 @@ class TaskListViewModelProvider extends AutoDisposeAsyncNotifierProviderImpl<
     TaskListViewModel, List<Task>> {
   /// See also [TaskListViewModel].
   TaskListViewModelProvider(
-    DateTime selectedDate,
+    TaskListFilter filter,
   ) : this._internal(
-          () => TaskListViewModel()..selectedDate = selectedDate,
+          () => TaskListViewModel()..filter = filter,
           from: taskListViewModelProvider,
           name: r'taskListViewModelProvider',
           debugGetCreateSourceHash:
@@ -97,7 +97,7 @@ class TaskListViewModelProvider extends AutoDisposeAsyncNotifierProviderImpl<
           dependencies: TaskListViewModelFamily._dependencies,
           allTransitiveDependencies:
               TaskListViewModelFamily._allTransitiveDependencies,
-          selectedDate: selectedDate,
+          filter: filter,
         );
 
   TaskListViewModelProvider._internal(
@@ -107,17 +107,17 @@ class TaskListViewModelProvider extends AutoDisposeAsyncNotifierProviderImpl<
     required super.allTransitiveDependencies,
     required super.debugGetCreateSourceHash,
     required super.from,
-    required this.selectedDate,
+    required this.filter,
   }) : super.internal();
 
-  final DateTime selectedDate;
+  final TaskListFilter filter;
 
   @override
   FutureOr<List<Task>> runNotifierBuild(
     covariant TaskListViewModel notifier,
   ) {
     return notifier.build(
-      selectedDate,
+      filter,
     );
   }
 
@@ -126,13 +126,13 @@ class TaskListViewModelProvider extends AutoDisposeAsyncNotifierProviderImpl<
     return ProviderOverride(
       origin: this,
       override: TaskListViewModelProvider._internal(
-        () => create()..selectedDate = selectedDate,
+        () => create()..filter = filter,
         from: from,
         name: null,
         dependencies: null,
         allTransitiveDependencies: null,
         debugGetCreateSourceHash: null,
-        selectedDate: selectedDate,
+        filter: filter,
       ),
     );
   }
@@ -145,14 +145,13 @@ class TaskListViewModelProvider extends AutoDisposeAsyncNotifierProviderImpl<
 
   @override
   bool operator ==(Object other) {
-    return other is TaskListViewModelProvider &&
-        other.selectedDate == selectedDate;
+    return other is TaskListViewModelProvider && other.filter == filter;
   }
 
   @override
   int get hashCode {
     var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, selectedDate.hashCode);
+    hash = _SystemHash.combine(hash, filter.hashCode);
 
     return _SystemHash.finish(hash);
   }
@@ -161,8 +160,8 @@ class TaskListViewModelProvider extends AutoDisposeAsyncNotifierProviderImpl<
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 mixin TaskListViewModelRef on AutoDisposeAsyncNotifierProviderRef<List<Task>> {
-  /// The parameter `selectedDate` of this provider.
-  DateTime get selectedDate;
+  /// The parameter `filter` of this provider.
+  TaskListFilter get filter;
 }
 
 class _TaskListViewModelProviderElement
@@ -171,8 +170,7 @@ class _TaskListViewModelProviderElement
   _TaskListViewModelProviderElement(super.provider);
 
   @override
-  DateTime get selectedDate =>
-      (origin as TaskListViewModelProvider).selectedDate;
+  TaskListFilter get filter => (origin as TaskListViewModelProvider).filter;
 }
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
