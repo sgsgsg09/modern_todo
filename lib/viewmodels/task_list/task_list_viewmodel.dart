@@ -26,7 +26,7 @@ class TaskListViewModel extends _$TaskListViewModel {
     final tasks = await _repository.fetchTodos(date: filter.selectedDate);
     if (filter.selectedCategory != null) {
       return tasks
-          .where((task) => task.category.id == filter.selectedCategory!.id)
+          .where((task) => task.categoryId == filter.selectedCategory!.id)
           .toList();
     }
     return tasks;
@@ -38,7 +38,7 @@ class TaskListViewModel extends _$TaskListViewModel {
       final tasks = await _repository.fetchTodos(date: filter.selectedDate);
       if (filter.selectedCategory != null) {
         state = AsyncValue.data(tasks
-            .where((t) => t.category.id == filter.selectedCategory!.id)
+            .where((t) => t.categoryId == filter.selectedCategory!.id)
             .toList());
       } else {
         state = AsyncValue.data(tasks);
@@ -54,7 +54,7 @@ class TaskListViewModel extends _$TaskListViewModel {
       final tasks = await _repository.fetchTodos(date: filter.selectedDate);
       if (filter.selectedCategory != null) {
         state = AsyncValue.data(tasks
-            .where((t) => t.category.id == filter.selectedCategory!.id)
+            .where((t) => t.categoryId == filter.selectedCategory!.id)
             .toList());
       } else {
         state = AsyncValue.data(tasks);
@@ -70,7 +70,7 @@ class TaskListViewModel extends _$TaskListViewModel {
       final tasks = await _repository.fetchTodos(date: filter.selectedDate);
       if (filter.selectedCategory != null) {
         state = AsyncValue.data(tasks
-            .where((t) => t.category.id == filter.selectedCategory!.id)
+            .where((t) => t.categoryId == filter.selectedCategory!.id)
             .toList());
       } else {
         state = AsyncValue.data(tasks);

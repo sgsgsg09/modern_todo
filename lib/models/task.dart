@@ -46,8 +46,8 @@ class Task with _$Task {
     /// 예상 소요 시간(분 단위 등으로 저장해도 됨)
     int? durationInMinutes,
 
-    /// 분류(예: todo, routine, event, my)
-    @TaskCategoryConverter() required TaskCategory category,
+    // 직접 포함하는 대신 TaskCategory의 id만 저장
+    required int categoryId,
 
     /// 색상 값 (예: Colors.blue.value)
     int? colorValue,

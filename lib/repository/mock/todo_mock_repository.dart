@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:modern_todo/data/mock_data.dart';
 import 'package:modern_todo/models/task.dart';
+import 'package:modern_todo/models/task_category.dart';
 import '../todo_abstract_repository.dart';
 
 class TodoMockRepository implements TodoAbstractRepository {
@@ -14,7 +15,6 @@ class TodoMockRepository implements TodoAbstractRepository {
   @override
   Future<List<Task>> fetchTodos({DateTime? date}) async {
     // 딜레이를 주어 네트워크 호출과 유사하게 동작하도록 함
-    await Future.delayed(Duration(milliseconds: 500));
     if (date == null) {
       return _tasks;
     } else {
@@ -29,7 +29,6 @@ class TodoMockRepository implements TodoAbstractRepository {
 
   @override
   Future<void> addTodo(Task task) async {
-    await Future.delayed(Duration(milliseconds: 300));
     // id가 null이면 auto-increment 시뮬레이션
     final newId = _tasks.isEmpty
         ? 1

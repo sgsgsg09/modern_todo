@@ -14,8 +14,7 @@ _$TaskImpl _$$TaskImplFromJson(Map<String, dynamic> json) => _$TaskImpl(
       startTime: const TimeOfDayConverter()
           .fromJson(json['startTime'] as Map<String, int>?),
       durationInMinutes: (json['durationInMinutes'] as num?)?.toInt(),
-      category: const TaskCategoryConverter()
-          .fromJson(json['category'] as Map<String, dynamic>),
+      categoryId: (json['categoryId'] as num).toInt(),
       colorValue: (json['colorValue'] as num?)?.toInt(),
       notes: json['notes'] as String?,
       photoUrls: (json['photoUrls'] as List<dynamic>?)
@@ -31,7 +30,7 @@ Map<String, dynamic> _$$TaskImplToJson(_$TaskImpl instance) =>
       'date': instance.date.toIso8601String(),
       'startTime': const TimeOfDayConverter().toJson(instance.startTime),
       'durationInMinutes': instance.durationInMinutes,
-      'category': const TaskCategoryConverter().toJson(instance.category),
+      'categoryId': instance.categoryId,
       'colorValue': instance.colorValue,
       'notes': instance.notes,
       'photoUrls': instance.photoUrls,

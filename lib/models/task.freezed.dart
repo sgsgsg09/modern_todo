@@ -37,11 +37,9 @@ mixin _$Task {
   TimeOfDay? get startTime => throw _privateConstructorUsedError;
 
   /// 예상 소요 시간(분 단위 등으로 저장해도 됨)
-  int? get durationInMinutes => throw _privateConstructorUsedError;
-
-  /// 분류(예: todo, routine, event, my)
-  @TaskCategoryConverter()
-  TaskCategory get category => throw _privateConstructorUsedError;
+  int? get durationInMinutes =>
+      throw _privateConstructorUsedError; // 직접 포함하는 대신 TaskCategory의 id만 저장
+  int get categoryId => throw _privateConstructorUsedError;
 
   /// 색상 값 (예: Colors.blue.value)
   int? get colorValue => throw _privateConstructorUsedError;
@@ -73,7 +71,7 @@ abstract class $TaskCopyWith<$Res> {
       DateTime date,
       @TimeOfDayConverter() TimeOfDay? startTime,
       int? durationInMinutes,
-      @TaskCategoryConverter() TaskCategory category,
+      int categoryId,
       int? colorValue,
       String? notes,
       List<String>? photoUrls});
@@ -100,7 +98,7 @@ class _$TaskCopyWithImpl<$Res, $Val extends Task>
     Object? date = null,
     Object? startTime = freezed,
     Object? durationInMinutes = freezed,
-    Object? category = null,
+    Object? categoryId = null,
     Object? colorValue = freezed,
     Object? notes = freezed,
     Object? photoUrls = freezed,
@@ -130,10 +128,10 @@ class _$TaskCopyWithImpl<$Res, $Val extends Task>
           ? _value.durationInMinutes
           : durationInMinutes // ignore: cast_nullable_to_non_nullable
               as int?,
-      category: null == category
-          ? _value.category
-          : category // ignore: cast_nullable_to_non_nullable
-              as TaskCategory,
+      categoryId: null == categoryId
+          ? _value.categoryId
+          : categoryId // ignore: cast_nullable_to_non_nullable
+              as int,
       colorValue: freezed == colorValue
           ? _value.colorValue
           : colorValue // ignore: cast_nullable_to_non_nullable
@@ -164,7 +162,7 @@ abstract class _$$TaskImplCopyWith<$Res> implements $TaskCopyWith<$Res> {
       DateTime date,
       @TimeOfDayConverter() TimeOfDay? startTime,
       int? durationInMinutes,
-      @TaskCategoryConverter() TaskCategory category,
+      int categoryId,
       int? colorValue,
       String? notes,
       List<String>? photoUrls});
@@ -188,7 +186,7 @@ class __$$TaskImplCopyWithImpl<$Res>
     Object? date = null,
     Object? startTime = freezed,
     Object? durationInMinutes = freezed,
-    Object? category = null,
+    Object? categoryId = null,
     Object? colorValue = freezed,
     Object? notes = freezed,
     Object? photoUrls = freezed,
@@ -218,10 +216,10 @@ class __$$TaskImplCopyWithImpl<$Res>
           ? _value.durationInMinutes
           : durationInMinutes // ignore: cast_nullable_to_non_nullable
               as int?,
-      category: null == category
-          ? _value.category
-          : category // ignore: cast_nullable_to_non_nullable
-              as TaskCategory,
+      categoryId: null == categoryId
+          ? _value.categoryId
+          : categoryId // ignore: cast_nullable_to_non_nullable
+              as int,
       colorValue: freezed == colorValue
           ? _value.colorValue
           : colorValue // ignore: cast_nullable_to_non_nullable
@@ -249,7 +247,7 @@ class _$TaskImpl implements _Task {
       required this.date,
       @TimeOfDayConverter() this.startTime,
       this.durationInMinutes,
-      @TaskCategoryConverter() required this.category,
+      required this.categoryId,
       this.colorValue,
       this.notes,
       final List<String>? photoUrls})
@@ -283,11 +281,9 @@ class _$TaskImpl implements _Task {
   /// 예상 소요 시간(분 단위 등으로 저장해도 됨)
   @override
   final int? durationInMinutes;
-
-  /// 분류(예: todo, routine, event, my)
+// 직접 포함하는 대신 TaskCategory의 id만 저장
   @override
-  @TaskCategoryConverter()
-  final TaskCategory category;
+  final int categoryId;
 
   /// 색상 값 (예: Colors.blue.value)
   @override
@@ -312,7 +308,7 @@ class _$TaskImpl implements _Task {
 
   @override
   String toString() {
-    return 'Task(id: $id, title: $title, isCompleted: $isCompleted, date: $date, startTime: $startTime, durationInMinutes: $durationInMinutes, category: $category, colorValue: $colorValue, notes: $notes, photoUrls: $photoUrls)';
+    return 'Task(id: $id, title: $title, isCompleted: $isCompleted, date: $date, startTime: $startTime, durationInMinutes: $durationInMinutes, categoryId: $categoryId, colorValue: $colorValue, notes: $notes, photoUrls: $photoUrls)';
   }
 
   @override
@@ -329,8 +325,8 @@ class _$TaskImpl implements _Task {
                 other.startTime == startTime) &&
             (identical(other.durationInMinutes, durationInMinutes) ||
                 other.durationInMinutes == durationInMinutes) &&
-            (identical(other.category, category) ||
-                other.category == category) &&
+            (identical(other.categoryId, categoryId) ||
+                other.categoryId == categoryId) &&
             (identical(other.colorValue, colorValue) ||
                 other.colorValue == colorValue) &&
             (identical(other.notes, notes) || other.notes == notes) &&
@@ -348,7 +344,7 @@ class _$TaskImpl implements _Task {
       date,
       startTime,
       durationInMinutes,
-      category,
+      categoryId,
       colorValue,
       notes,
       const DeepCollectionEquality().hash(_photoUrls));
@@ -377,7 +373,7 @@ abstract class _Task implements Task {
       required final DateTime date,
       @TimeOfDayConverter() final TimeOfDay? startTime,
       final int? durationInMinutes,
-      @TaskCategoryConverter() required final TaskCategory category,
+      required final int categoryId,
       final int? colorValue,
       final String? notes,
       final List<String>? photoUrls}) = _$TaskImpl;
@@ -407,12 +403,9 @@ abstract class _Task implements Task {
 
   /// 예상 소요 시간(분 단위 등으로 저장해도 됨)
   @override
-  int? get durationInMinutes;
-
-  /// 분류(예: todo, routine, event, my)
+  int? get durationInMinutes; // 직접 포함하는 대신 TaskCategory의 id만 저장
   @override
-  @TaskCategoryConverter()
-  TaskCategory get category;
+  int get categoryId;
 
   /// 색상 값 (예: Colors.blue.value)
   @override

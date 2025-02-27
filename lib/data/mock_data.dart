@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:modern_todo/models/task.dart';
 import 'package:modern_todo/models/task_category.dart';
 
-// 미리 정의한 TaskCategory 인스턴스들 (필요에 따라 사용자가 추가/수정할 수 있도록 별도의 화면에서 관리 가능)
+// 미리 정의한 TaskCategory 인스턴스들 (별도 관리 화면 등에서 CRUD 가능)
 final TaskCategory todoCategory = TaskCategory(
   id: 1,
   name: "Todo",
@@ -15,18 +15,7 @@ final TaskCategory routineCategory = TaskCategory(
   colorValue: Colors.orange.value,
 );
 
-final TaskCategory eventCategory = TaskCategory(
-  id: 3,
-  name: "Event",
-  colorValue: Colors.red.value,
-);
-
-final TaskCategory myCategory = TaskCategory(
-  id: 4,
-  name: "My",
-  colorValue: Colors.pink.value,
-);
-
+// 수정된 Task 모델에서는 category 대신 categoryId를 사용
 final mockTasks = <Task>[
   Task(
     id: 1,
@@ -35,7 +24,7 @@ final mockTasks = <Task>[
     date: DateTime(2023, 7, 4),
     startTime: const TimeOfDay(hour: 10, minute: 0),
     durationInMinutes: 60,
-    category: todoCategory,
+    categoryId: todoCategory.id,
     colorValue: Colors.purple.value,
     notes: "방, 거실, 주방 순으로 청소하기",
     photoUrls: ["https://example.com/images/clean_room.jpg"],
@@ -47,7 +36,7 @@ final mockTasks = <Task>[
     date: DateTime(2023, 7, 4),
     startTime: const TimeOfDay(hour: 13, minute: 30),
     durationInMinutes: 90,
-    category: todoCategory,
+    categoryId: todoCategory.id,
     colorValue: Colors.blue.value,
     notes: "주간 업무 보고서 최종 검수",
     photoUrls: [],
@@ -59,7 +48,7 @@ final mockTasks = <Task>[
     date: DateTime(2023, 7, 4),
     startTime: const TimeOfDay(hour: 17, minute: 0),
     durationInMinutes: 30,
-    category: todoCategory,
+    categoryId: todoCategory.id,
     colorValue: Colors.green.value,
     notes: "채소, 과일, 생필품 구매",
     photoUrls: ["https://example.com/images/grocery.jpg"],
@@ -71,7 +60,7 @@ final mockTasks = <Task>[
     date: DateTime(2023, 7, 4),
     startTime: const TimeOfDay(hour: 19, minute: 0),
     durationInMinutes: 60,
-    category: routineCategory,
+    categoryId: routineCategory.id,
     colorValue: Colors.orange.value,
     notes: "30분 러닝 + 30분 근력 운동",
     photoUrls: [],
@@ -83,7 +72,7 @@ final mockTasks = <Task>[
     date: DateTime(2023, 7, 5),
     startTime: const TimeOfDay(hour: 18, minute: 0),
     durationInMinutes: 120,
-    category: eventCategory,
+    categoryId: todoCategory.id,
     colorValue: Colors.red.value,
     notes: "카페에서 만남 후 저녁 식사 예정",
     photoUrls: [],
@@ -95,7 +84,7 @@ final mockTasks = <Task>[
     date: DateTime(2023, 7, 5),
     startTime: const TimeOfDay(hour: 20, minute: 0),
     durationInMinutes: 45,
-    category: myCategory,
+    categoryId: todoCategory.id,
     colorValue: Colors.pink.value,
     notes: "노트 앱에 아이디어 간단히 정리하기",
     photoUrls: [],

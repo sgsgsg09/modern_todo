@@ -7,6 +7,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'repository_provider.g.dart';
 
 @Riverpod(keepAlive: true)
-TodoAbstractRepository RepositoryProvider(Ref ref) {
+TodoAbstractRepository repositoryProvider(Ref ref) {
   return TodoMockRepository();
 }

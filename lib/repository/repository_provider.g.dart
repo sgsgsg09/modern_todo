@@ -7,12 +7,12 @@ part of 'repository_provider.dart';
 // **************************************************************************
 
 String _$repositoryProviderHash() =>
-    r'6c545cf225144f5bbdff5601b469d7075e938d32';
+    r'2e5d8cf9473b0082159435a70f18919d89670f36';
 
-/// See also [RepositoryProvider].
-@ProviderFor(RepositoryProvider)
+/// See also [repositoryProvider].
+@ProviderFor(repositoryProvider)
 final repositoryProviderProvider = Provider<TodoAbstractRepository>.internal(
-  RepositoryProvider,
+  repositoryProvider,
   name: r'repositoryProviderProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
       ? null

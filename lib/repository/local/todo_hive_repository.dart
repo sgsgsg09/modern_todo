@@ -1,5 +1,6 @@
 import 'package:hive/hive.dart';
 import 'package:modern_todo/models/task.dart';
+import 'package:modern_todo/models/task_category.dart';
 import 'package:modern_todo/repository/todo_abstract_repository.dart';
 
 class TodoHiveRepository implements TodoAbstractRepository {
