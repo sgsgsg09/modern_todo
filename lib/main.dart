@@ -4,8 +4,7 @@ import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:modern_todo/adapters/task_hive_adapter.dart';
 import 'package:modern_todo/models/task.dart';
-import 'package:modern_todo/repository/repository_provider.dart';
-import 'package:modern_todo/views/calendar_view.dart';
+
 import 'package:modern_todo/views/todo_view.dart';
 
 Future<void> main() async {

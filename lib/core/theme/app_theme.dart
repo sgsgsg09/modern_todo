@@ -9,24 +9,19 @@ class AppTheme {
   static const Color errorColor = Colors.red;
   static const Color greyColor = Colors.grey;
 
+  //Header_widgets_style
+
   // 텍스트 스타일 정의
   static final TextStyle headerTitleStyle = TextStyle(
-    fontSize: 24,
+    fontSize: 40,
     fontWeight: FontWeight.bold,
     color: primaryColor,
-  );
-  static final TextStyle today_headerTitleStyle = TextStyle(
-    fontSize: 24,
-    color: primaryColor,
-  );
-  static final TextStyle today_headerSubtitleStyle = TextStyle(
-    fontSize: 16,
-    color: const Color.fromARGB(255, 255, 255, 255),
   );
 
   static final TextStyle headerSubtitleStyle = TextStyle(
     fontSize: 16,
-    color: greyColor,
+    fontWeight: FontWeight.bold,
+    color: primaryColor,
   );
 
   static final TextStyle todoTitleStyle = TextStyle(
