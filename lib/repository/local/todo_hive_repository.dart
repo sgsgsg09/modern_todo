@@ -50,5 +50,17 @@ class TodoHiveRepository implements TodoAbstractRepository {
     }
   }
 
+  @override
+  Future<List<TaskCategory>> fetchCategories() {
+    // TODO: implement fetchCategories
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<TaskCategory?> fetchCategoryById(int id) {
+    // TODO: implement fetchCategoryById
+    throw UnimplementedError();
+  }
+
   // 네트워크 동기화와 관련된 uploadTodo는 여기서 별도 구현하지 않음.
 }

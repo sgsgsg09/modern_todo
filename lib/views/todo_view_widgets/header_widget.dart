@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:modern_todo/core/theme/app_theme.dart';
 import 'package:modern_todo/core/theme/color_palette.dart';
+import 'package:modern_todo/views/calendar_view.dart';
 
 class HeaderWidget extends StatelessWidget {
   final DateTime currentDate;
-  final VoidCallback onTodayPressed;
   final VoidCallback onCalendarPressed;
 
   const HeaderWidget({
     Key? key,
     required this.currentDate,
-    required this.onTodayPressed,
     required this.onCalendarPressed,
   }) : super(key: key);
 
@@ -29,7 +28,15 @@ class HeaderWidget extends StatelessWidget {
           Align(
             alignment: Alignment.centerRight,
             child: IconButton(
-              onPressed: onCalendarPressed,
+              onPressed: () {
+                // 📌 여기에서 화면 이동을 수행
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CalendarView(), // 캘린더 화면 이동
+                  ),
+                );
+              },
               icon: const Icon(
                 Icons.calendar_month,
                 color: AppColors.textPrimary,

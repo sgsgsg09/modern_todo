@@ -8,6 +8,12 @@ abstract class TodoAbstractRepository {
   Future<void> addTodo(Task todo);
   Future<void> updateTodo(Task todo);
   Future<void> deleteTodo(Task todo);
+
+  // 새로 추가: 전체 카테고리를 가져오는 메서드
+  Future<List<TaskCategory>> fetchCategories();
+
+  // 혹은 특정 ID에 해당하는 카테고리를 가져오는 메서드
+  Future<TaskCategory?> fetchCategoryById(int id);
 }
 
 /*

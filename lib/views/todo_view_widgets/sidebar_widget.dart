@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:modern_todo/core/theme/app_theme.dart';
+import 'package:modern_todo/core/theme/color_palette.dart';
 import 'package:modern_todo/models/task_category.dart';
 
 /// 왼쪽 사이드 탭 위젯
@@ -22,108 +23,108 @@ class SidebarWidget extends StatelessWidget {
 
     return Container(
       width: sidebarWidth,
-      color: Colors.transparent, // 전체 배경 투명
+      color: AppColors.primary, // 딥 그린 색.
       child: Column(
         children: [
           /// 1) 상단 탭들(전체 + 각 카테고리)
           Expanded(
-            // Expanded나 SingleChildScrollView를 활용해 스크롤 가능하게 처리 가능
+            flex: 3,
             child: Column(
-              mainAxisSize: MainAxisSize.min,
               children: [
                 // "전체" 탭
-                GestureDetector(
-                  onTap: () => onCategorySelected(null),
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    width: sidebarWidth * 0.8,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      color: (selectedCategory == null)
-                          ? Colors.grey.shade300
-                          : Colors.grey.shade200,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(20),
-                        bottomLeft: Radius.circular(20),
-                      ),
-                    ),
-                    child: Center(
-                      child: RotatedBox(
-                        quarterTurns: 3, // 세로 회전
-                        child: Text(
-                          'All',
-                          style: TextStyle(
-                            color: Colors.black87,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
+                Expanded(
+                  child: SidebarTabItem(
+                    label: 'All',
+                    color: AppColors.backgroundSlateBlue,
+                    onTap: () => onCategorySelected(null),
+                    isSelected: selectedCategory == null,
+                    borderRadius: const BorderRadius.only(
+                      // topLeft를 0으로 설정하여 둥근 모서리 제거
+                      bottomLeft: Radius.circular(10),
                     ),
                   ),
                 ),
+                // 탭 사이 간격 1px
+                Container(height: 1, color: Colors.transparent),
 
                 // 카테고리 탭들
                 ...categories.map((category) {
-                  final isSelected = selectedCategory?.id == category.id;
-                  return GestureDetector(
-                    onTap: () => onCategorySelected(category),
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(vertical: 8),
-                      width: sidebarWidth * 0.8,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? Color(category.colorValue).withOpacity(0.8)
-                            : Color(category.colorValue),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Center(
-                        child: RotatedBox(
-                          quarterTurns: 3,
-                          child: Text(
-                            category.name,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
+                  final bool isSelected = selectedCategory?.id == category.id;
+                  return Expanded(
+                    child: SidebarTabItem(
+                      label: category.name,
+                      color: Color(category.colorValue),
+                      onTap: () => onCategorySelected(category),
+                      isSelected: isSelected,
                     ),
                   );
                 }).toList(),
               ],
             ),
           ),
+          Spacer(flex: 2),
 
-          /// 2) 맨 아래에 ‘Setting’ 탭
-          GestureDetector(
-            onTap: () {
-              // Setting 화면으로 이동하거나, 기능 실행
-            },
-            child: Container(
-              margin: const EdgeInsets.symmetric(vertical: 16),
-              width: sidebarWidth * 0.8,
-              height: 80,
-              decoration: BoxDecoration(
-                color: Colors.purpleAccent, // 원하는 색상
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Center(
-                child: RotatedBox(
-                  quarterTurns: 3,
-                  child: Text(
-                    'Settings',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
+          /// 2) 맨 아래에 ‘Setting’ 탭 (최하단)
+          // 최하단이므로 왼쪽 아래 모서리는 둥글지 않게 설정
+          Expanded(
+            flex: 1,
+            child: SidebarTabItem(
+              label: 'settings',
+              color: AppColors.backgroundMistBlue,
+              onTap: () => onCategorySelected(null),
+              isSelected: false,
+              borderRadius: const BorderRadius.only(
+                // bottomLeft를 0으로 설정하여 둥근 모서리 제거
+                topLeft: Radius.circular(10),
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// 각 사이드바 탭에 공통으로 쓰일 위젯
+class SidebarTabItem extends StatelessWidget {
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+  final bool isSelected;
+  final BorderRadius? borderRadius;
+
+  const SidebarTabItem({
+    Key? key,
+    required this.label,
+    required this.color,
+    required this.onTap,
+    this.isSelected = false,
+    this.borderRadius,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        // 탭의 모서리 둥근 정도를 외부에서 주입받아 설정
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.selected : color,
+          borderRadius: borderRadius ??
+              const BorderRadius.only(
+                topLeft: Radius.circular(10),
+                bottomLeft: Radius.circular(10),
+              ),
+        ),
+        child: Center(
+          child: RotatedBox(
+            quarterTurns: 3,
+            child: Text(
+              label,
+              style: AppTheme.sidebarTitleStyle,
+            ),
+          ),
+        ),
       ),
     );
   }

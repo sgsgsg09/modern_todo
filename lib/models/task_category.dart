@@ -1,21 +1,16 @@
-import 'package:hive/hive.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
+part 'task_category.freezed.dart';
 part 'task_category.g.dart';
 
-@HiveType(typeId: 1)
-class TaskCategory extends HiveObject {
-  @HiveField(0)
-  final int id;
+@freezed
+class TaskCategory with _$TaskCategory {
+  const factory TaskCategory({
+    required int id,
+    required String name,
+    required int colorValue,
+  }) = _TaskCategory;
 
-  @HiveField(1)
-  final String name;
-
-  @HiveField(2)
-  final int colorValue;
-
-  TaskCategory({
-    required this.id,
-    required this.name,
-    required this.colorValue,
-  });
+  factory TaskCategory.fromJson(Map<String, dynamic> json) =>
+      _$TaskCategoryFromJson(json);
 }

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:modern_todo/adapters/task_hive_adapter.dart';
+import 'package:modern_todo/core/theme/color_palette.dart';
 import 'package:modern_todo/models/task.dart';
 
 import 'package:modern_todo/views/todo_view.dart';
@@ -26,7 +27,12 @@ class MyApp extends ConsumerWidget {
     return MaterialApp(
       title: 'Modern Todo',
       home: Scaffold(
-        body: SafeArea(child: const TodoView()),
+        body: Container(
+          color: AppColors.selected,
+          child: SafeArea(
+            child: const TodoView(),
+          ),
+        ),
       ),
     );
   }
