@@ -57,6 +57,7 @@ dependencies:
   flutter_native_splash: ^2.4.4
   hive_generator: ^2.0.1
   collection: ^1.18.0
+  timeline_tile: ^2.0.0
 
 
 dev_dependencies:

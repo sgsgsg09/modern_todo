@@ -43,4 +43,19 @@ class AppTheme {
     fontSize: 16,
     color: greyColor,
   );
+
+  // AppTheme.dart
+  static final TextStyle highlightTitleStyle = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.bold,
+    color: Colors.white, // 배경이 파란색일 때 대비
+  );
+  static const TextStyle highlightDescriptionStyle = TextStyle(
+    fontSize: 14,
+    color: Colors.white70,
+  );
+  static final TextStyle timeTextStyle = TextStyle(
+    fontSize: 14,
+    color: Colors.grey[600],
+  );
 }

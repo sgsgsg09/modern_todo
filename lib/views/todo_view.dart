@@ -17,6 +17,7 @@ import 'package:modern_todo/views/calendar_view.dart';
 import 'package:modern_todo/views/todo_view_widgets/header_widget.dart';
 import 'package:modern_todo/views/todo_view_widgets/main_content_widget.dart';
 import 'package:modern_todo/views/todo_view_widgets/sidebar_widget.dart';
+import 'package:modern_todo/views/todo_view_widgets/task_timeline_widget.dart';
 
 /// TodoView: 전체 Todo 화면을 구성하는 StatefulWidget
 class TodoView extends ConsumerStatefulWidget {
@@ -81,9 +82,23 @@ class _TodoViewState extends ConsumerState<TodoView> {
                     onCalendarPressed: () {},
                   ),
                   Expanded(
-                    child: MainContentWidget(
-                      tasksAsyncValue: taskListAsync,
-                      filter: filter,
+                    child: taskListAsync.when(
+                      data: (tasks) => categoriesAsync.when(
+                        data: (categories) => TaskTimelineWidget(
+                          currentDate: _currentDate,
+                          selectedCategory: _selectedCategory,
+                          tasks: tasks,
+                          categories: categories,
+                        ),
+                        loading: () =>
+                            const Center(child: CircularProgressIndicator()),
+                        error: (error, stack) =>
+                            Center(child: Text('카테고리 로드 에러: $error')),
+                      ),
+                      loading: () =>
+                          const Center(child: CircularProgressIndicator()),
+                      error: (error, stack) =>
+                          Center(child: Text('Task 로드 에러: $error')),
                     ),
                   ),
                 ],
