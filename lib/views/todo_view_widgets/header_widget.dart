@@ -28,20 +28,12 @@ class HeaderWidget extends StatelessWidget {
           Align(
             alignment: Alignment.centerRight,
             child: IconButton(
-              onPressed: () {
-                // 📌 여기에서 화면 이동을 수행
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => CalendarView(), // 캘린더 화면 이동
-                  ),
-                );
-              },
               icon: const Icon(
                 Icons.calendar_month,
                 color: AppColors.textPrimary,
                 size: 30,
               ),
+              onPressed: onCalendarPressed,
             ),
           ),
           // 첫 번째 줄: 왼쪽 정렬 (월/일.요일)

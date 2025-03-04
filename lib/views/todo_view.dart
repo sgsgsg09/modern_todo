@@ -3,15 +3,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 // 테마 관련
 import 'package:modern_todo/core/theme/app_theme.dart';
 import 'package:modern_todo/core/theme/color_palette.dart';
+import 'package:modern_todo/main.dart';
+import 'package:modern_todo/models/task.dart';
 
 // 모델
 import 'package:modern_todo/models/task_category.dart';
+import 'package:modern_todo/viewmodels/calendars/calendar_viewmodel.dart';
 import 'package:modern_todo/viewmodels/task_detail/categories_viewmodel.dart';
 
 // 뷰모델
 import 'package:modern_todo/viewmodels/task_list/task_list_viewmodel.dart';
 import 'package:modern_todo/viewmodels/viewmodels_models/task_list_filter.dart';
 import 'package:modern_todo/views/calendar_view.dart';
+import 'package:modern_todo/views/commons_widgets/show_addtask_bottomsheet.dart';
 
 // 위젯들
 import 'package:modern_todo/views/todo_view_widgets/header_widget.dart';
@@ -79,7 +83,10 @@ class _TodoViewState extends ConsumerState<TodoView> {
                   /// 헤더 영역
                   HeaderWidget(
                     currentDate: _currentDate,
-                    onCalendarPressed: () {},
+                    onCalendarPressed: () {
+                      // 버튼 클릭 시 네비게이션 상태를 변경해 CalendarView로 전환
+                      ref.read(navigationProvider.notifier).changePage(1);
+                    },
                   ),
                   Expanded(
                     child: taskListAsync.when(
@@ -89,6 +96,26 @@ class _TodoViewState extends ConsumerState<TodoView> {
                           selectedCategory: _selectedCategory,
                           tasks: tasks,
                           categories: categories,
+                          onTaskTap: (task) async {
+                            // 바텀시트 띄우기
+                            final updateTask = await showAddTaskBottomSheet(
+                              context: context,
+                              categories: categories,
+                              existingTask: task,
+                            );
+                            // 바텀시트에서 newTask가 반환되면, ViewModel을 통해 저장
+                            if (updateTask != null) {
+                              // 현재 필터에 맞는 ViewModel Notifier를 가져옴
+                              final vm = ref.read(
+                                  taskListViewModelProvider(filter).notifier);
+                              await vm.updateTask(updateTask);
+                            }
+                            if (updateTask == 'delete') {
+                              ref
+                                  .read(calendarViewModelProvider.notifier)
+                                  .deleteTask(task);
+                            }
+                          },
                         ),
                         loading: () =>
                             const Center(child: CircularProgressIndicator()),
@@ -108,12 +135,26 @@ class _TodoViewState extends ConsumerState<TodoView> {
         ],
       ),
       // 우측 하단 FloatingActionButton
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: AppTheme.accentColor,
-        onPressed: () {
-          // 새 작업 추가 로직
-        },
-        child: const Icon(Icons.add),
+      floatingActionButton: categoriesAsync.when(
+        data: (categories) => FloatingActionButton(
+          backgroundColor: AppTheme.accentColor,
+          onPressed: () async {
+            // 바텀시트 띄우기
+            final newTask = await showAddTaskBottomSheet(
+              context: context,
+              categories: categories,
+            );
+            // 바텀시트에서 newTask가 반환되면, ViewModel을 통해 저장
+            if (newTask != null) {
+              // 현재 필터에 맞는 ViewModel Notifier를 가져옴
+              final vm = ref.read(taskListViewModelProvider(filter).notifier);
+              await vm.addTask(newTask);
+            }
+          },
+          child: const Icon(Icons.add),
+        ),
+        loading: () => const SizedBox.shrink(),
+        error: (error, stack) => const SizedBox.shrink(),
       ),
     );
   }

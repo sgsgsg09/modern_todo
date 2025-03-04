@@ -11,7 +11,12 @@ class TaskTimelineWidget extends StatelessWidget {
   final TaskCategory? selectedCategory;
   final List<Task> tasks;
   final List<TaskCategory> categories;
-  // 범주 변경 UI는 제거되었으므로 onCategoryChanged도 제거하거나, 다른 용도로 사용할 수 있습니다.
+// 변경 전
+// final VoidCallback? onTaskTap;
+
+// 변경 후
+  final ValueChanged<Task>?
+      onTaskTap; // 범주 변경 UI는 제거되었으므로 onCategoryChanged도 제거하거나, 다른 용도로 사용할 수 있습니다.
   // final ValueChanged<TaskCategory?> onCategoryChanged;
 
   const TaskTimelineWidget({
@@ -20,6 +25,7 @@ class TaskTimelineWidget extends StatelessWidget {
     required this.selectedCategory,
     required this.tasks,
     required this.categories,
+    this.onTaskTap,
     // required this.onCategoryChanged,
   }) : super(key: key);
 
@@ -67,54 +73,57 @@ class TaskTimelineWidget extends StatelessWidget {
                 startChild: const SizedBox.shrink(),
 
                 // Task의 주요 정보를 오른쪽에 표시
-                endChild: Container(
-                  margin: const EdgeInsets.symmetric(
-                      vertical: 8), // 일정 간격을 위해 세로 여백
-                  child: Card(
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    color: isHighlighted ? Colors.blue : Colors.white,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Stack(
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // 일정 제목
-                              Text(
-                                task.title,
-                                style: isHighlighted
-                                    ? AppTheme.highlightTitleStyle // 강조 일정의 스타일
-                                    : AppTheme.todoTitleStyle,
-                              ),
-                              const SizedBox(height: 8),
-                              // 일정 부가 설명 (notes)
-                              if (task.notes != null && task.notes!.isNotEmpty)
-                                Text(
-                                  task.notes!,
-                                  style: isHighlighted
-                                      ? AppTheme.highlightDescriptionStyle
-                                      : AppTheme.todoDescriptionStyle,
+                endChild: GestureDetector(
+                  onTap: () => onTaskTap?.call(task),
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(
+                        vertical: 8), // 일정 간격을 위해 세로 여백
+                    child: Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      color: isHighlighted ? Colors.blue : Colors.white,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // 1) 한 줄에서 좌우로 배치
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    task.title,
+                                    style: isHighlighted
+                                        ? AppTheme.highlightTitleStyle
+                                        : AppTheme.todoTitleStyle,
+                                  ),
                                 ),
-                              const SizedBox(height: 8),
-                            ],
-                          ),
-                          Positioned(
-                            top: 0,
-                            right: 0,
-                            child: Text(
-                              task.startTime != null
-                                  ? task.startTime!.format(context)
-                                  : '',
-                              style: isHighlighted
-                                  ? AppTheme.highlightDescriptionStyle
-                                  : AppTheme.timeTextStyle,
+                                if (task.startTime != null)
+                                  Container(
+                                    padding: EdgeInsets.only(left: 5),
+                                    child: Text(
+                                      task.startTime!.format(context),
+                                      style: isHighlighted
+                                          ? AppTheme.highlightDescriptionStyle
+                                          : AppTheme.timeTextStyle,
+                                    ),
+                                  ),
+                              ],
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 8),
+                            // 2) 그 아래 줄에 노트나 기타 정보
+                            if (task.notes != null && task.notes!.isNotEmpty)
+                              Text(
+                                task.notes!,
+                                style: isHighlighted
+                                    ? AppTheme.highlightDescriptionStyle
+                                    : AppTheme.todoDescriptionStyle,
+                              ),
+                          ],
+                        ),
                       ),
                     ),
                   ),

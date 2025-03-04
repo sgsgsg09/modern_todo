@@ -19,15 +19,15 @@ class TaskCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
       child: Row(
         children: [
-          // 체크박스 영역 (InkWell에 포함되지 않음)
+/*           // 체크박스 영역 (InkWell에 포함되지 않음)
           Checkbox(
             value: task.isCompleted,
             onChanged: onCheck,
             activeColor: AppTheme.primaryColor,
-          ),
+          ), */
           // 카드의 나머지 영역 (InkWell 적용)
           Expanded(
             child: InkWell(
@@ -39,6 +39,20 @@ class TaskCard extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+                      Container(
+                        width: 6, // 크기를 조금 더 키움 (디자인 개선)
+                        height: 6, // 높이를 추가하여 원형이 유지되도록 함
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: (task.colorValue != null &&
+                                  task.colorValue != 0)
+                              ? Color(task.colorValue!) // `int`를 `Color`로 변환
+                              : AppColors.primary, // 기본 색상
+                        ),
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
                       Expanded(
                         child: Text(
                           task.title,
@@ -47,19 +61,6 @@ class TaskCard extends StatelessWidget {
                             fontSize: 16,
                           ),
                         ),
-                      ),
-                      Row(
-                        children: [
-                          const Icon(Icons.access_time,
-                              size: 16, color: Colors.grey),
-                          const SizedBox(width: 4),
-                          Text(
-                            _remainingTime(task),
-                            style: AppTheme.todoDescriptionStyle.copyWith(
-                              color: Colors.grey[800],
-                            ),
-                          ),
-                        ],
                       ),
                     ],
                   ),

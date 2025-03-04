@@ -5,8 +5,21 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:modern_todo/adapters/task_hive_adapter.dart';
 import 'package:modern_todo/core/theme/color_palette.dart';
 import 'package:modern_todo/models/task.dart';
+import 'package:modern_todo/views/calendar_view.dart';
 
 import 'package:modern_todo/views/todo_view.dart';
+
+// 네비게이션 상태를 관리하는 StateNotifier
+class NavigationNotifier extends StateNotifier<int> {
+  NavigationNotifier() : super(0);
+  void changePage(int newIndex) {
+    state = newIndex;
+  }
+}
+
+// 네비게이션 상태를 제공하는 Provider
+final navigationProvider = StateNotifierProvider<NavigationNotifier, int>(
+    (ref) => NavigationNotifier());
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,13 +37,21 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final currentIndex = ref.watch(navigationProvider);
     return MaterialApp(
       title: 'Modern Todo',
       home: Scaffold(
         body: Container(
           color: AppColors.selected,
           child: SafeArea(
-            child: const TodoView(),
+            // IndexedStack을 사용해 페이지 전환
+            child: IndexedStack(
+              index: currentIndex,
+              children: const [
+                TodoView(),
+                CalendarView(),
+              ],
+            ),
           ),
         ),
       ),

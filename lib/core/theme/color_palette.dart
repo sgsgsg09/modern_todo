@@ -32,4 +32,6 @@ class AppColors {
   static const Color backgroundDeepCharcoal = Color(0xFF2E2E2E);
   static const Color backgroundSlateBlue = Color(0xFF3B4F68);
   static const Color backgroundDarkMocha = Color(0xFF4A403A);
+
+  static const Color borderColor = Color(0xFF757575);
 }
