@@ -1,9 +1,7 @@
-import 'package:modern_todo/models/task.dart';
 import 'package:modern_todo/models/task_category.dart';
 import 'package:modern_todo/repository/todo_abstract_repository.dart';
 import 'package:modern_todo/repository/repository_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:table_calendar/table_calendar.dart';
 
 part 'categories_viewmodel.g.dart';
 

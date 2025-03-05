@@ -53,7 +53,15 @@ class TodoMockRepository implements TodoAbstractRepository {
 
   @override
   Future<void> deleteTodo(Task task) async {
-    _tasks.removeWhere((t) => t.id == task.id);
+    // 저장소에서 task.id가 같은 항목의 인덱스를 찾음
+    print('asda');
+    print(task.id);
+    final index = _tasks.indexWhere((t) => t.id == task.id);
+    if (index != -1) {
+      _tasks.removeAt(index);
+    } else {
+      throw Exception("해당 Task를 찾을 수 없습니다.");
+    }
   }
 
   @override

@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:modern_todo/core/theme/app_theme.dart';
 import 'package:modern_todo/core/theme/color_palette.dart';
 import 'package:modern_todo/models/task.dart';
 import 'package:modern_todo/models/task_category.dart';
+import 'package:modern_todo/viewmodels/calendars/calendar_viewmodel.dart';
+import 'package:modern_todo/viewmodels/task_list/task_list_viewmodel.dart';
+import 'package:modern_todo/viewmodels/viewmodels_models/task_list_filter.dart';
 
 ///
 /// 바텀시트를 띄우고, 새로 생성된 Task를 반환받는 함수
@@ -11,6 +15,7 @@ import 'package:modern_todo/models/task_category.dart';
 Future<Task?> showAddTaskBottomSheet({
   required BuildContext context,
   required List<TaskCategory> categories,
+  required TaskListFilter filter, // ★ filter 추가
   Task? existingTask, // 추가: 수정할 Task를 받을 수 있도록 파라미터 추가
 }) async {
   return showModalBottomSheet<Task?>(
@@ -22,6 +27,7 @@ Future<Task?> showAddTaskBottomSheet({
     builder: (_) {
       return _AddTaskBottomSheetContent(
         categories: categories,
+        filter: filter, // ★ 넘겨주기
         existingTask: existingTask, // 함께 넘겨줌
       );
     },
@@ -32,23 +38,26 @@ Future<Task?> showAddTaskBottomSheet({
 /// 바텀시트 내부 UI
 /// - 날짜·시간 선택, 제목·메모 입력, 카테고리/색상 선택, 알람 설정 등
 ///
-class _AddTaskBottomSheetContent extends StatefulWidget {
+class _AddTaskBottomSheetContent extends ConsumerStatefulWidget {
   final List<TaskCategory> categories;
+  final TaskListFilter filter; // ★
+
   final Task? existingTask; // 수정할 Task
 
   const _AddTaskBottomSheetContent({
     Key? key,
     required this.categories,
+    required this.filter,
     this.existingTask, // nullable
   }) : super(key: key);
 
   @override
-  State<_AddTaskBottomSheetContent> createState() =>
+  ConsumerState<_AddTaskBottomSheetContent> createState() =>
       _AddTaskBottomSheetContentState();
 }
 
 class _AddTaskBottomSheetContentState
-    extends State<_AddTaskBottomSheetContent> {
+    extends ConsumerState<_AddTaskBottomSheetContent> {
   final _formKey = GlobalKey<FormState>();
 
   DateTime _selectedDate = DateTime.now();
@@ -107,12 +116,41 @@ class _AddTaskBottomSheetContentState
     }
   }
 
-  void _saveTask() {
+  void _saveTask() async {
     if (_formKey.currentState?.validate() ?? false) {
       _formKey.currentState?.save();
 
       final newTask = Task(
-        id: null,
+        id: widget.existingTask?.id,
+        title: _title,
+        isCompleted: false,
+        date: _selectedDate,
+        startTime: _selectedTime,
+        durationInMinutes: null,
+        categoryId: _selectedCategoryId ?? 0,
+        colorValue: _selectedColorValue,
+        notes: _notes.isEmpty ? null : _notes,
+      );
+// ViewModel 불러오기: filter를 이용한 family provider
+      final vm = ref.read(taskListViewModelProvider(widget.filter).notifier);
+
+      if (newTask.id != null) {
+        // 기존 할 일이 있다면 업데이트
+        await vm.updateTask(newTask);
+      } else {
+        // 새로운 할 일이면 추가
+        await vm.addTask(newTask);
+      }
+      Navigator.pop(context); // 그냥 닫기
+    }
+  }
+
+  void _deleteTask() async {
+    if (_formKey.currentState?.validate() ?? false) {
+      _formKey.currentState?.save();
+
+      final deleteTask = Task(
+        id: widget.existingTask?.id,
         title: _title,
         isCompleted: false,
         date: _selectedDate,
@@ -123,7 +161,10 @@ class _AddTaskBottomSheetContentState
         notes: _notes.isEmpty ? null : _notes,
       );
 
-      Navigator.pop(context, newTask);
+      final vm = ref.read(taskListViewModelProvider(widget.filter).notifier);
+      await vm.deleteTask(deleteTask);
+
+      Navigator.pop(context); // 그냥 닫기
     }
   }
 
@@ -264,7 +305,6 @@ class _AddTaskBottomSheetContentState
                 children: [
                   for (final colorVal in [
                     Colors.red.value,
-                    Colors.yellow.value,
                     Colors.green.value,
                     Colors.blue.value,
                   ])
@@ -340,12 +380,7 @@ class _AddTaskBottomSheetContentState
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      onPressed: () {
-                        // 삭제 로직 구현
-                        // 예: provider를 통해 삭제를 처리하고, 바텀시트를 닫기
-                        // ref.read(taskViewModelProvider.notifier).deleteTask(widget.existingTask!);
-                        Navigator.pop(context, 'delete'); // 삭제 완료 후 삭제 신호 전달
-                      },
+                      onPressed: _deleteTask,
                       child: const Text('Delete'),
                     ),
                   ),

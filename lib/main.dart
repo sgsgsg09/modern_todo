@@ -27,7 +27,7 @@ Future<void> main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(TaskHiveAdapter());
   // Box<TodoItem>를 열어두자.
-  await Hive.openBox<Task>('todos');
+  await Hive.openBox<Task>('tasks');
 
   runApp(ProviderScope(child: MyApp()));
 }

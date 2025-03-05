@@ -35,7 +35,7 @@ class SidebarWidget extends StatelessWidget {
                 Expanded(
                   child: SidebarTabItem(
                     label: 'All',
-                    color: AppColors.backgroundSlateBlue,
+                    color: AppColors.CategoryAll,
                     onTap: () => onCategorySelected(null),
                     isSelected: selectedCategory == null,
                     borderRadius: const BorderRadius.only(
@@ -71,7 +71,7 @@ class SidebarWidget extends StatelessWidget {
             child: SidebarTabItem(
               label: 'settings',
               color: AppColors.backgroundMistBlue,
-              onTap: () => onCategorySelected(null),
+              onTap: () {},
               isSelected: false,
               borderRadius: const BorderRadius.only(
                 // bottomLeft를 0으로 설정하여 둥근 모서리 제거

@@ -1,9 +1,13 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:modern_todo/core/theme/app_theme.dart';
 import 'package:modern_todo/core/theme/color_palette.dart';
 import 'package:modern_todo/main.dart';
 import 'package:modern_todo/viewmodels/task_detail/categories_viewmodel.dart';
+import 'package:modern_todo/viewmodels/task_list/task_list_viewmodel.dart';
+import 'package:modern_todo/viewmodels/viewmodels_models/task_list_filter.dart';
 import 'package:modern_todo/views/commons_widgets/show_addtask_bottomsheet.dart';
 import 'package:modern_todo/views/commons_widgets/task_card.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -23,8 +27,18 @@ class _CalendarViewState extends ConsumerState<CalendarView> {
 
   @override
   Widget build(BuildContext context) {
+    // 1) filter 만들기
+    final filter = TaskListFilter(
+      selectedDate: _selectedDay,
+      // 필요하다면 selectedCategoryId도 넣을 수 있음
+    );
+
     final calendarAsync = ref.watch(calendarViewModelProvider);
+
+    final taskAsync = ref.watch(taskListViewModelProvider(filter));
+
     final someCategoryList = ref.watch(categoriesViewmodelProvider);
+
     return Scaffold(
       backgroundColor: AppTheme.primaryColor, // 테마 색상 사용
       body: SafeArea(
@@ -43,7 +57,7 @@ class _CalendarViewState extends ConsumerState<CalendarView> {
                   });
                 },
                 onTodoPressed: () {
-                  // 버튼 클릭 시 네비게이션 상태를 변경해 CalendarView로 전환
+                  //CalendarView로 전환
                   ref.read(navigationProvider.notifier).changePage(0);
                 },
               ),
@@ -65,21 +79,11 @@ class _CalendarViewState extends ConsumerState<CalendarView> {
                     tasksFuture: AsyncValue.data(tasks),
                     selectedDay: _selectedDay,
                     onTaskTap: (task) async {
-                      final updatedTask = await showAddTaskBottomSheet(
+                      await showAddTaskBottomSheet(
                         context: context,
                         categories: categories, // 로드된 실제 카테고리 목록
-                        existingTask: task,
+                        existingTask: task, filter: filter,
                       );
-                      if (updatedTask != null) {
-                        ref
-                            .read(calendarViewModelProvider.notifier)
-                            .updateTask(updatedTask);
-                      }
-                      if (updatedTask == 'delete') {
-                        ref
-                            .read(calendarViewModelProvider.notifier)
-                            .deleteTask(task);
-                      }
                     },
                   ),
                   loading: () =>
@@ -228,7 +232,7 @@ class UpcomingTasksSection extends StatelessWidget {
                 ? Center(
                     child: Text(
                       "해당 날짜에 일정이 없습니다.",
-                      style: TextStyle(color: AppColors.background),
+                      style: TextStyle(color: AppColors.primary),
                     ),
                   )
                 : Column(

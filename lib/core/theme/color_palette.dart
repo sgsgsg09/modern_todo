@@ -33,5 +33,8 @@ class AppColors {
   static const Color backgroundSlateBlue = Color(0xFF3B4F68);
   static const Color backgroundDarkMocha = Color(0xFF4A403A);
 
+  static const Color CategoryAll = Color.fromARGB(255, 252, 182, 156);
+  static const Color CategoryTodo = Color(0xFFF5E1DA);
+  static const Color CategoryRoutine = Color(0xFFDDE5B6);
   static const Color borderColor = Color(0xFF757575);
 }
