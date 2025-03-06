@@ -71,7 +71,10 @@ class SidebarWidget extends StatelessWidget {
             child: SidebarTabItem(
               label: 'settings',
               color: AppColors.backgroundMistBlue,
-              onTap: () {},
+              onTap: () {
+                // 'settings' 탭을 터치할 때 _showSideSheet 함수 호출
+                _showSideSheet(context);
+              },
               isSelected: false,
               borderRadius: const BorderRadius.only(
                 // bottomLeft를 0으로 설정하여 둥근 모서리 제거
@@ -125,6 +128,101 @@ class SidebarTabItem extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+void _showSideSheet(BuildContext context) {
+  showGeneralDialog(
+    context: context,
+    barrierLabel: "SideSheet",
+    barrierDismissible: true,
+    barrierColor: Colors.black.withOpacity(0.3),
+    transitionDuration: const Duration(milliseconds: 200),
+    pageBuilder: (context, _, __) {
+      return Align(
+        alignment: Alignment.centerRight,
+        child: Material(
+          color: Colors.transparent, // Material의 배경을 투명하게 설정
+
+          elevation: 10,
+          child: Container(
+            width: 350,
+            height: double.infinity,
+            decoration: BoxDecoration(
+              color: AppColors.backgroundMistBlue,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(30),
+                bottomLeft: Radius.circular(30),
+              ),
+            ),
+            child: Center(
+              child: LanguageSelectionSheet(),
+            ),
+          ),
+        ),
+      );
+    },
+    transitionBuilder: (context, anim, _, child) {
+      return SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(1, 0),
+          end: Offset.zero,
+        ).animate(anim),
+        child: child,
+      );
+    },
+  );
+}
+
+class LanguageSelectionSheet extends StatelessWidget {
+  // 선택 가능한 언어 목록
+  final List<String> languages = ['일본어', '영어', '한국어'];
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 350,
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: languages.map((language) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: ElevatedButton(
+              onPressed: () {
+                // 언어 선택 시 동작 정의
+                print('$language 선택됨');
+              },
+              style: ButtonStyle(
+                backgroundColor: WidgetStateProperty.resolveWith<Color>(
+                  (Set<WidgetState> states) {
+                    if (states.contains(WidgetState.pressed)) {
+                      return Colors.grey; // 버튼이 눌렸을 때 색상
+                    }
+                    return Colors.blue; // 기본 색상
+                  },
+                ),
+                foregroundColor: WidgetStateProperty.all<Color>(Colors.white),
+                minimumSize:
+                    WidgetStateProperty.all<Size>(Size(double.infinity, 50)),
+                shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30), // 둥근 모서리
+                  ),
+                ),
+              ),
+              child: Text(
+                language,
+                style: TextStyle(fontSize: 18),
+              ),
+            ),
+          );
+        }).toList(),
       ),
     );
   }

@@ -10,7 +10,7 @@ class AppColors {
   static const Color secondaryVariant = Color(0xFF018786);
 
   // 배경 및 표면 (Background, Surface)
-  static const Color background = Color(0xFFF5F5F5);
+  static const Color background = Color(0xFFFFFFFF);
   static const Color selected = Color(0xFFFFFFFF);
 
   // 텍스트 색상

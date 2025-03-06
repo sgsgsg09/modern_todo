@@ -8,6 +8,7 @@ import 'package:modern_todo/models/task.dart';
 import 'package:modern_todo/views/calendar_view.dart';
 
 import 'package:modern_todo/views/todo_view.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 // 네비게이션 상태를 관리하는 StateNotifier
 class NavigationNotifier extends StateNotifier<int> {
@@ -28,7 +29,6 @@ Future<void> main() async {
   Hive.registerAdapter(TaskHiveAdapter());
   // Box<TodoItem>를 열어두자.
   await Hive.openBox<Task>('tasks');
-
   runApp(ProviderScope(child: MyApp()));
 }
 
