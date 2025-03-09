@@ -66,10 +66,6 @@ flutter_native_splash:
   color: "#FFFFFF"
   image: "assets/logos/logo_transparent_resize.png"
 
-  android_12:
-    color: "#FFFFFF"
-    image: "assets/logos/logo_transparent_android_12.png"
-
 dev_dependencies:
   flutter_test:
     sdk: flutter

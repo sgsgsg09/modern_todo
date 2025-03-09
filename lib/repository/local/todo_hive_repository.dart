@@ -13,9 +13,9 @@ class TodoHiveRepository implements TodoAbstractRepository {
       name: "Todo",
       colorValue: AppColors.CategoryTodo.value,
     ),
-    TaskCategory(
+  TaskCategory(
       id: 2,
-      name: "Routine",
+      name: "Other",
       colorValue: AppColors.CategoryRoutine.value,
     ),
   ];

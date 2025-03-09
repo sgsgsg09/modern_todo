@@ -68,7 +68,8 @@ class SidebarWidget extends StatelessWidget {
           // 최하단이므로 왼쪽 아래 모서리는 둥글지 않게 설정
           Expanded(
             flex: 1,
-            child: SidebarTabItem(
+            child: Container(),
+            /* child: SidebarTabItem(
               label: 'settings',
               color: AppColors.backgroundMistBlue,
               onTap: () {
@@ -80,7 +81,7 @@ class SidebarWidget extends StatelessWidget {
                 // bottomLeft를 0으로 설정하여 둥근 모서리 제거
                 topLeft: Radius.circular(10),
               ),
-            ),
+            ), */
           ),
         ],
       ),
