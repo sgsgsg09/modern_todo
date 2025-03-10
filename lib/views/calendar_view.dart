@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:modern_todo/core/theme/app_theme.dart';
 import 'package:modern_todo/core/theme/color_palette.dart';
 import 'package:modern_todo/main.dart';
+import 'package:modern_todo/resource/message/generated/l10n.dart';
 import 'package:modern_todo/viewmodels/task_detail/categories_viewmodel.dart';
 import 'package:modern_todo/viewmodels/task_list/task_list_viewmodel.dart';
 import 'package:modern_todo/viewmodels/viewmodels_models/task_list_filter.dart';
@@ -64,7 +65,7 @@ class _CalendarViewState extends ConsumerState<CalendarView> {
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, st) => Center(
                 child: Text(
-                  "오류 발생: $error",
+                  S.of(context).generalError,
                   style: TextStyle(color: AppTheme.errorColor),
                 ),
               ),
@@ -89,11 +90,11 @@ class _CalendarViewState extends ConsumerState<CalendarView> {
                   loading: () =>
                       const Center(child: CircularProgressIndicator()),
                   error: (error, stackTrace) =>
-                      Center(child: Text('카테고리 로드 에러: $error')),
+                      Center(child: Text(S.of(context).categoryLoadError)),
                 ),
                 loading: () => const Center(child: CircularProgressIndicator()),
                 error: (error, stackTrace) =>
-                    Center(child: Text('Task 로드 에러: $error')),
+                    Center(child: Text(S.of(context).taskLoadError)),
               ),
             ),
           ],

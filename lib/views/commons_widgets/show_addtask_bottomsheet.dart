@@ -5,6 +5,7 @@ import 'package:modern_todo/core/theme/app_theme.dart';
 import 'package:modern_todo/core/theme/color_palette.dart';
 import 'package:modern_todo/models/task.dart';
 import 'package:modern_todo/models/task_category.dart';
+import 'package:modern_todo/resource/message/generated/l10n.dart';
 import 'package:modern_todo/viewmodels/calendars/calendar_viewmodel.dart';
 import 'package:modern_todo/viewmodels/task_list/task_list_viewmodel.dart';
 import 'package:modern_todo/viewmodels/viewmodels_models/task_list_filter.dart';
@@ -170,224 +171,237 @@ class _AddTaskBottomSheetContentState
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: EdgeInsets.only(
-        left: 16,
-        right: 16,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-        top: 16,
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.background,
+        borderRadius: BorderRadius.circular(10),
       ),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 날짜·시간 선택 영역 (Card 스타일 제거, 구분선 추가)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Date & Time', style: AppTheme.todoTitleStyle),
-                  const SizedBox(height: 8),
-                  Row(
+      child: SingleChildScrollView(
+        padding: EdgeInsets.only(
+          left: 16,
+          right: 16,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+          top: 16,
+        ),
+        child: Form(
+          key: _formKey,
+          child: Container(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 날짜·시간 선택 영역 (Card 스타일 제거, 구분선 추가)
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 1, vertical: 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: _pickDate,
-                          child: Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: AppColors.borderColor),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              '${_selectedDate.month}월 ${_selectedDate.day}일',
-                              style: AppTheme.todoDescriptionStyle,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: _pickTime,
-                          child: Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: AppColors.borderColor),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              _selectedTime != null
-                                  ? _selectedTime!.format(context)
-                                  : '시간 설정',
-                              style: AppTheme.todoDescriptionStyle,
+                      Text(S.of(context).datetime,
+                          style: AppTheme.todoTitleStyle),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: _pickDate,
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  border:
+                                      Border.all(color: AppColors.borderColor),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  '${_selectedDate.month}${S.of(context).month} ${_selectedDate.day}${S.of(context).day}',
+                                  style: AppTheme.todoDescriptionStyle,
+                                ),
+                              ),
                             ),
                           ),
-                        ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: _pickTime,
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  border:
+                                      Border.all(color: AppColors.borderColor),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  _selectedTime != null
+                                      ? _selectedTime!.format(context)
+                                      : S.of(context).time,
+                                  style: AppTheme.todoDescriptionStyle,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
-              ),
-            ),
-            const Divider(thickness: 1),
-            const SizedBox(height: 16),
+                ),
+                const Divider(thickness: 1),
+                const SizedBox(height: 16),
 
-            // 제목 입력 영역
-            Text('Title', style: AppTheme.todoTitleStyle),
-            const SizedBox(height: 4),
-            TextFormField(
-              decoration: const InputDecoration(
-                labelText: 'Title',
-                border: OutlineInputBorder(),
-              ),
-              // 기존 Task 제목을 UI에 표시해주기 위해 추가:
-              initialValue: _title,
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return '제목을 입력하세요';
-                }
-                return null;
-              },
-              onSaved: (value) => _title = value ?? '',
-            ),
-            const SizedBox(height: 16),
-// 카테고리 선택 영역 (가로 방향 배치)
-            if (widget.categories.isNotEmpty) ...[
-              Text('카테고리', style: AppTheme.todoTitleStyle),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8.0,
-                runSpacing: 8.0,
-                children: widget.categories.map((cat) {
-                  final isSelected = _selectedCategoryId == cat.id;
-                  return ChoiceChip(
-                    label: Text(cat.name),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      if (selected) {
-                        setState(() {
-                          _selectedCategoryId = cat.id;
-                          _selectedColorValue = cat.colorValue;
-                        });
-                      }
-                    },
-                    selectedColor: AppTheme.accentColor,
-                    labelStyle: TextStyle(
-                      color: isSelected ? Colors.white : Colors.black,
-                    ),
-                  );
-                }).toList(),
-              ),
-              const SizedBox(height: 16),
-            ],
-            // 메모 입력 영역
-            Text('Notes', style: AppTheme.todoTitleStyle),
-            const SizedBox(height: 4),
-            TextFormField(
-              decoration: const InputDecoration(
-                labelText: 'Notes',
-                border: OutlineInputBorder(),
-              ),
-              initialValue: _notes,
-              maxLines: 3,
-              onSaved: (value) => _notes = value ?? '',
-            ),
-            const SizedBox(height: 8),
-            const Divider(thickness: 1),
-            // 색상 선택 영역
-            if (_selectedColorValue != null) ...[
-              Text('색상 선택', style: AppTheme.todoTitleStyle),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  for (final colorVal in [
-                    Colors.red.value,
-                    Colors.green.value,
-                    Colors.blue.value,
-                  ])
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _selectedColorValue = colorVal;
-                        });
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.only(right: 8),
-                        width: 36,
-                        height: 36,
-                        decoration: BoxDecoration(
-                          color: Color(colorVal),
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: _selectedColorValue == colorVal
-                                ? AppTheme.accentColor
-                                : Colors.transparent,
-                            width: 2,
+                // 제목 입력 영역
+                Text(S.of(context).title, style: AppTheme.todoTitleStyle),
+                const SizedBox(height: 4),
+                TextFormField(
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                  ),
+                  // 기존 Task 제목을 UI에 표시해주기 위해 추가:
+                  initialValue: _title,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return S.of(context).addTaskTitleValidation;
+                    }
+                    return null;
+                  },
+                  onSaved: (value) => _title = value ?? '',
+                ),
+                const SizedBox(height: 16),
+                // 카테고리 선택 영역 (가로 방향 배치)
+                if (widget.categories.isNotEmpty) ...[
+                  Text(S.of(context).addTaskCategoryLabel,
+                      style: AppTheme.todoTitleStyle),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8.0,
+                    runSpacing: 8.0,
+                    children: widget.categories.map((cat) {
+                      final isSelected = _selectedCategoryId == cat.id;
+                      return ChoiceChip(
+                        label: Text(cat.name),
+                        selected: isSelected,
+                        onSelected: (selected) {
+                          if (selected) {
+                            setState(() {
+                              _selectedCategoryId = cat.id;
+                              _selectedColorValue = cat.colorValue;
+                            });
+                          }
+                        },
+                        selectedColor: AppTheme.accentColor,
+                        labelStyle: TextStyle(
+                          color: isSelected ? Colors.white : Colors.black,
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                // 메모 입력 영역
+                Text(S.of(context).addTaskNotesLabel,
+                    style: AppTheme.todoTitleStyle),
+                const SizedBox(height: 4),
+                TextFormField(
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                  ),
+                  initialValue: _notes,
+                  maxLines: 3,
+                  onSaved: (value) => _notes = value ?? '',
+                ),
+                const SizedBox(height: 8),
+                const Divider(thickness: 1),
+                // 색상 선택 영역
+                if (_selectedColorValue != null) ...[
+                  Text(S.of(context).addTaskColorSelection,
+                      style: AppTheme.todoTitleStyle),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      for (final colorVal in [
+                        Colors.red.value,
+                        Colors.green.value,
+                        Colors.blue.value,
+                      ])
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _selectedColorValue = colorVal;
+                            });
+                          },
+                          child: Container(
+                            margin: const EdgeInsets.only(right: 8),
+                            width: 36,
+                            height: 36,
+                            decoration: BoxDecoration(
+                              color: Color(colorVal),
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: _selectedColorValue == colorVal
+                                    ? AppTheme.accentColor
+                                    : Colors.transparent,
+                                width: 2,
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 16),
-            ],
-
-            // 알람 설정 영역
-            /* Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('알람 설정', style: AppTheme.todoTitleStyle),
-                Switch(
-                  value: _hasAlarm,
-                  onChanged: (value) {
-                    setState(() {
-                      _hasAlarm = value;
-                    });
-                  },
-                  activeColor: AppTheme.accentColor,
-                ),
-              ],
-            ), */
-            const SizedBox(height: 16),
-
-            // 저장 / 삭제 버튼 Row
-            Row(
-              children: [
-                // SAVE 버튼
-                Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.accentColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    onPressed: _saveTask,
-                    child: const Text('Save'),
+                    ],
                   ),
-                ),
-                const SizedBox(width: 8),
-                // DELETE 버튼 (기존 Task가 있을 때만 보이도록)
-                if (widget.existingTask != null)
-                  Expanded(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.redAccent,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                  const SizedBox(height: 16),
+                ],
+
+                // 알람 설정 영역
+                /* Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('알람 설정', style: AppTheme.todoTitleStyle),
+                    Switch(
+                      value: _hasAlarm,
+                      onChanged: (value) {
+                        setState(() {
+                          _hasAlarm = value;
+                        });
+                      },
+                      activeColor: AppTheme.accentColor,
+                    ),
+                  ],
+                ), */
+                const SizedBox(height: 16),
+
+                // 저장 / 삭제 버튼 Row
+                Row(
+                  children: [
+                    // SAVE 버튼
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.accentColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        onPressed: _saveTask,
+                        child: Text(S.of(context).addTaskSaveButton),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    // DELETE 버튼 (기존 Task가 있을 때만 보이도록)
+                    if (widget.existingTask != null)
+                      Expanded(
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.redAccent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          onPressed: _deleteTask,
+                          child: Text(S.of(context).addTaskDeleteButton),
                         ),
                       ),
-                      onPressed: _deleteTask,
-                      child: const Text('Delete'),
-                    ),
-                  ),
+                  ],
+                ),
+                const SizedBox(height: 30),
               ],
             ),
-            const SizedBox(height: 30),
-          ],
+          ),
         ),
       ),
     );

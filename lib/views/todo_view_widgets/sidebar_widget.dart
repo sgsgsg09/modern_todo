@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:modern_todo/core/theme/app_theme.dart';
 import 'package:modern_todo/core/theme/color_palette.dart';
+import 'package:modern_todo/main.dart';
 import 'package:modern_todo/models/task_category.dart';
 
 /// 왼쪽 사이드 탭 위젯
@@ -68,8 +70,8 @@ class SidebarWidget extends StatelessWidget {
           // 최하단이므로 왼쪽 아래 모서리는 둥글지 않게 설정
           Expanded(
             flex: 1,
-            child: Container(),
-            /* child: SidebarTabItem(
+            // child: Container(),
+            child: SidebarTabItem(
               label: 'settings',
               color: AppColors.backgroundMistBlue,
               onTap: () {
@@ -81,7 +83,7 @@ class SidebarWidget extends StatelessWidget {
                 // bottomLeft를 0으로 설정하여 둥근 모서리 제거
                 topLeft: Radius.circular(10),
               ),
-            ), */
+            ),
           ),
         ],
       ),
@@ -152,7 +154,7 @@ void _showSideSheet(BuildContext context) {
             width: 350,
             height: double.infinity,
             decoration: BoxDecoration(
-              color: AppColors.backgroundMistBlue,
+              color: AppColors.background,
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(30),
                 bottomLeft: Radius.circular(30),
@@ -177,40 +179,52 @@ void _showSideSheet(BuildContext context) {
   );
 }
 
-class LanguageSelectionSheet extends StatelessWidget {
+class LanguageSelectionSheet extends ConsumerWidget {
   // 선택 가능한 언어 목록
-  final List<String> languages = ['일본어', '영어', '한국어'];
+  final List<Map<String, dynamic>> languages = [
+    {"label": "日本語", "locale": const Locale('ja')},
+    {"label": "English", "locale": const Locale('en')},
+    {"label": "한국어", "locale": const Locale('ko')},
+  ];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // 현재 선택된 Locale 상태를 읽어옴
+    final currentLocale = ref.watch(localeProvider);
     return Container(
       width: 350,
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: languages.map((language) {
+          // 선택된 언어인지 체크
+          final bool isSelected = currentLocale == language["locale"];
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: ElevatedButton(
               onPressed: () {
-                // 언어 선택 시 동작 정의
-                print('$language 선택됨');
+                // 전역 Locale 업데이트 (예: MyApp의 changeLocale 메서드 호출)
+                MyApp.of(context)?.changeLocale(language["locale"]);
+                Navigator.of(context).pop();
               },
               style: ButtonStyle(
                 backgroundColor: WidgetStateProperty.resolveWith<Color>(
                   (Set<WidgetState> states) {
                     if (states.contains(WidgetState.pressed)) {
-                      return Colors.grey; // 버튼이 눌렸을 때 색상
+                      return AppColors.primary; // 버튼이 눌렸을 때 색상
                     }
-                    return Colors.blue; // 기본 색상
+                    // 선택된 언어는 강조 색상 사용 (예: 초록색), 아니면 기본 파란색
+                    return isSelected
+                        ? AppColors.primary
+                        : AppColors.textSecondary;
                   },
                 ),
                 foregroundColor: WidgetStateProperty.all<Color>(Colors.white),
-                minimumSize:
-                    WidgetStateProperty.all<Size>(Size(double.infinity, 50)),
+                minimumSize: WidgetStateProperty.all<Size>(
+                    const Size(double.infinity, 50)),
                 shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                   RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30), // 둥근 모서리
@@ -218,8 +232,8 @@ class LanguageSelectionSheet extends StatelessWidget {
                 ),
               ),
               child: Text(
-                language,
-                style: TextStyle(fontSize: 18),
+                language["label"],
+                style: const TextStyle(fontSize: 18),
               ),
             ),
           );

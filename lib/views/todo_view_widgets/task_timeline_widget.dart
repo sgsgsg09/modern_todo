@@ -4,6 +4,7 @@ import 'package:modern_todo/core/theme/app_theme.dart';
 import 'package:modern_todo/core/theme/color_palette.dart';
 import 'package:modern_todo/models/task.dart';
 import 'package:modern_todo/models/task_category.dart';
+import 'package:modern_todo/resource/message/generated/l10n.dart';
 import 'package:timeline_tile/timeline_tile.dart';
 
 class TaskTimelineWidget extends StatelessWidget {
@@ -34,10 +35,9 @@ class TaskTimelineWidget extends StatelessWidget {
     return tasks.isEmpty
         ? Center(
             child: Text(
-              '해당 조건의 Task가 없습니다.',
-              style: AppTheme.todoDescriptionStyle,
-            ),
-          )
+            S.of(context).noTask,
+            style: AppTheme.todoDescriptionStyle,
+          ))
         : ListView.builder(
             itemCount: tasks.length,
             itemBuilder: (context, index) {

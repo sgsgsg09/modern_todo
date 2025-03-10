@@ -7,6 +7,7 @@ import 'package:modern_todo/main.dart';
 
 // 모델
 import 'package:modern_todo/models/task_category.dart';
+import 'package:modern_todo/resource/message/generated/l10n.dart';
 import 'package:modern_todo/viewmodels/calendars/calendar_viewmodel.dart';
 import 'package:modern_todo/viewmodels/task_detail/categories_viewmodel.dart';
 
@@ -66,7 +67,7 @@ class _TodoViewState extends ConsumerState<TodoView> {
               ),
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, stackTrace) =>
-                  Center(child: Text('오류 발생: $error')),
+                  Center(child: Text(S.of(context).generalError)),
             ),
           ),
 
@@ -106,13 +107,13 @@ class _TodoViewState extends ConsumerState<TodoView> {
                         ),
                         loading: () =>
                             const Center(child: CircularProgressIndicator()),
-                        error: (error, stack) =>
-                            Center(child: Text('카테고리 로드 에러: $error')),
+                        error: (error, stack) => Center(
+                            child: Text(S.of(context).categoryLoadError)),
                       ),
                       loading: () =>
                           const Center(child: CircularProgressIndicator()),
                       error: (error, stack) =>
-                          Center(child: Text('Task 로드 에러: $error')),
+                          Center(child: Text(S.of(context).taskLoadError)),
                     ),
                   ),
                 ],

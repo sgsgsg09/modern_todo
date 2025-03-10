@@ -1,0 +1,19 @@
+{
+  "title": "シンプル・トゥードゥ",
+  "greeting": "こんにちは、世界！",
+  "generalError": "エラー発生:",
+  "taskLoadError": "タスク読み込みエラー:",
+  "categoryLoadError": "カテゴリー読み込みエラー:",
+  "noTask": "実行すべきタスクがありません。",
+  "datetime": "日付と時刻",
+  "month": "月",
+  "day": "日",
+  "time": "時間設定",
+  "Title": "タイトル",
+  "addTaskTitleValidation": "タイトルを入力してください",
+  "addTaskCategoryLabel": "カテゴリー",
+  "addTaskNotesLabel": "メモ",
+  "addTaskColorSelection": "色の選択",
+  "addTaskSaveButton": "保存",
+  "addTaskDeleteButton": "削除"
+}

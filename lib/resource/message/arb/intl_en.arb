@@ -1,0 +1,19 @@
+{
+  "title": "Simple Todo",
+  "greeting": "Hello, World!",
+  "generalError": "Error occurred:",
+  "taskLoadError": "Task load error:",
+  "categoryLoadError": "Category load error:",
+  "noTask": "No tasks available.",
+  "datetime": "Date & Time",
+  "month": "Month",
+  "day": "Day",
+  "time": "Set Time",
+  "Title": "Title",
+  "addTaskTitleValidation": "Please enter a title",
+  "addTaskCategoryLabel": "Category",
+  "addTaskNotesLabel": "Notes",
+  "addTaskColorSelection": "Color selection",
+  "addTaskSaveButton": "Save",
+  "addTaskDeleteButton": "Delete"
+}

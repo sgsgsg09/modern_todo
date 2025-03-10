@@ -1,0 +1,19 @@
+{
+  "title": "심플 투두",
+  "greeting": "안녕, 세상!",
+  "generalError": "오류 발생:",
+  "taskLoadError": "Task 로드 에러:",
+  "categoryLoadError": "카테고리 로드 에러:",
+  "noTask" : "해야할 일이 없습니다.",
+  "datetime" : "날짜 & 시간", 
+  "month" : "월",
+  "day" : "일",
+  "time" : "시간 설정",
+  "title": "제목",
+  "addTaskTitleValidation": "제목을 입력하세요",
+  "addTaskCategoryLabel": "카테고리",
+  "addTaskNotesLabel": "메모",
+  "addTaskColorSelection": "색상 선택",
+  "addTaskSaveButton": "저장하기",
+  "addTaskDeleteButton": "삭제하기"
+}
