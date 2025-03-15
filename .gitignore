@@ -1,3 +1,5 @@
+#일부 코드 가리기.
+lib/views/todo_view_widgets/
 # Miscellaneous
 *.class
 *.log
