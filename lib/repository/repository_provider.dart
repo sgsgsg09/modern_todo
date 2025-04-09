@@ -12,8 +12,10 @@ part 'repository_provider.g.dart';
 @Riverpod(keepAlive: true)
 TodoAbstractRepository repositoryProvider(Ref ref) {
   // 환경 변수 'USE_MOCK_REPO'가 true로 설정되었으면 모의(Mock) 저장소를 사용합니다.
-  const bool useMockRepo =
-      bool.fromEnvironment('USE_MOCK_REPO', defaultValue: false);
+  const bool useMockRepo = bool.fromEnvironment(
+    'USE_MOCK_REPO',
+    defaultValue: false,
+  );
 
   if (useMockRepo) {
     return TodoMockRepository();
